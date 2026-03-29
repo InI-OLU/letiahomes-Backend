@@ -1,0 +1,11 @@
+﻿namespace letiahomes.Application.DTOs.Auth
+{
+    public sealed class AuthResponse
+    {
+        public required string Token { get; init; }
+        public required string Email { get; init; }
+        public required string FullName { get; init; }
+        public required string Role { get; init; }
+        public required DateTime ExpiresAt { get; init; }
+    }
+}
