@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace letiahomes.Application.Services
 {
-   public class AccountService:IAccountService
+   public class AccountService
     {
         private readonly IHostEnvironment _host;
 
@@ -14,10 +14,7 @@ namespace letiahomes.Application.Services
             _host = host;
         }
 
-        public async Task<ApiResult<AuthResponse>> RegisterLandlord(RegisterLandlordRequest request)
-        {
-
-        }
+       
 
 
         private string GetAccountVerificationMessage(string firstName, string otp)

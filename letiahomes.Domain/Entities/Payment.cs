@@ -12,7 +12,8 @@ namespace letiahomes.Domain.Entities
         public Guid Id { get; set; }
         public Guid BookingId { get; set; }
         public string PaystackReference { get; set; }   // from Paystack
-        public decimal Amount { get; set; }
+        public long AmountKobo { get; set; }
+
         public PaymentStatus Status { get; set; } = PaymentStatus.Pending;
         public DateTime PaidAt { get; set; }
 

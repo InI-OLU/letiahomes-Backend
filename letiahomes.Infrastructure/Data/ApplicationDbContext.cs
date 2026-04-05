@@ -5,13 +5,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace letiahomes.Infrastructure.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<AppUser>
+    public class ApplicationDbContext : IdentityDbContext<AppUser>,IApplicationDbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
         }
 
+        public DbSet<LandlordProfile> LandlordProfiles { get; set; }
+        public DbSet<TenantProfile> TenantProfiles { get; set; }
+        public DbSet<Property> Properties { get; set; }
+        public DbSet<PropertyImage> PropertyImages { get; set; }
+        public DbSet<PropertyAmenity> PropertyAmenities { get; set; }
+        public DbSet<UnavailableDate> UnavailableDates { get; set; }
+        public DbSet<Booking> Bookings { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+        public DbSet<Payout> Payouts { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -61,13 +71,15 @@ namespace letiahomes.Infrastructure.Data
                 Id = adminUserId,
                 FirstName = "Inioluwa",
                 LastName = "Agbeleye",
-                UserName = "gbolahanagbeleye@gmail.com",       
-                NormalizedUserName = "ADMIN@LETIAHOMES.COM",
-                Email = "gbolahanagbeleye@gmail.com",          
-                NormalizedEmail = "ADMIN@LETIAHOMES.COM",
+                UserName = "gbolahanagbeleye@gmail.com",
+                NormalizedUserName = "GBOLAHANAGBELEYE@GMAIL.COM",
+                Email = "gbolahanagbeleye@gmail.com",
+                NormalizedEmail = "GBOLAHANAGBELEYE@GMAIL.COM",
                 EmailConfirmed = true,
+                IsActive = true,      
+                IsVerified = true,    
                 SecurityStamp = "c3d4e5f6-a7b8-9012-cdef-123456789012",
-                ConcurrencyStamp = "d4e5f6a7-b8c9-0123-defa-234567890123" 
+                ConcurrencyStamp = "d4e5f6a7-b8c9-0123-defa-234567890123"
             };
             adminUser.PasswordHash = hasher.HashPassword(adminUser, "Admin@123!");
 
@@ -77,7 +89,81 @@ namespace letiahomes.Infrastructure.Data
             {
                 UserId = adminUserId,
                 RoleId = adminRoleId
-            }); 
+            });
+
+            // LandlordProfile → AppUser (one-to-one)
+            builder.Entity<LandlordProfile>()
+                .HasOne(l => l.AppUser)
+                .WithOne()
+                .HasForeignKey<LandlordProfile>(l => l.AppUserId)
+                .OnDelete(DeleteBehavior.Cascade);  // delete profile if user deleted
+
+            // TenantProfile → AppUser (one-to-one)
+            builder.Entity<TenantProfile>()
+                .HasOne(t => t.AppUser)
+                .WithOne()
+                .HasForeignKey<TenantProfile>(t => t.AppUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            
+
+            // Property → LandlordProfile (one landlord, many properties)
+            builder.Entity<Property>()
+                .HasOne(p => p.Landlord)
+                .WithMany(l => l.Properties)
+                .HasForeignKey(p => p.LandlordProfileId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // PropertyImage → Property
+            builder.Entity<PropertyImage>()
+                .HasOne(pi => pi.Property)
+                .WithMany(p => p.Images)
+                .HasForeignKey(pi => pi.PropertyId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // PropertyAmenity → Property
+            builder.Entity<PropertyAmenity>()
+                .HasOne(pa => pa.Property)
+                .WithMany(p => p.Amenities)
+                .HasForeignKey(pa => pa.PropertyId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // UnavailableDate → Property
+            builder.Entity<UnavailableDate>()
+                .HasOne(u => u.Property)
+                .WithMany(p => p.UnavailableDates)
+                .HasForeignKey(u => u.PropertyId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Booking → Property
+            builder.Entity<Booking>()
+                .HasOne(b => b.Property)
+                .WithMany(p => p.Bookings)
+                .HasForeignKey(b => b.PropertyId)
+                .OnDelete(DeleteBehavior.Restrict); 
+
+            // Booking → TenantProfile
+            builder.Entity<Booking>()
+                .HasOne(b => b.Tenant)
+                .WithMany(t => t.Bookings)
+                .HasForeignKey(b => b.TenantProfileId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Payment → Booking (one-to-one)
+            builder.Entity<Payment>()
+                .HasOne(p => p.Booking)
+                .WithOne(b => b.Payment)
+                .HasForeignKey<Payment>(p => p.BookingId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Payout → LandlordProfile
+            builder.Entity<Payout>()
+                .HasOne(p => p.Landlord)
+                .WithMany(l => l.Payouts)
+                .HasForeignKey(p => p.LandlordProfileId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+           
         }
     }
 }

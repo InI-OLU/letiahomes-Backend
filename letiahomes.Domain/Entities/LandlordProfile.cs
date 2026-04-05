@@ -20,5 +20,6 @@ namespace letiahomes.Domain.Entities
 
         public AppUser AppUser { get; set; }          // navigation back to user
         public ICollection<Property> Properties { get; set; } = [];
+        public ICollection<Payout> Payouts { get; set; } = [];
     }
 }

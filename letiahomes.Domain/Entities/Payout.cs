@@ -12,8 +12,8 @@ namespace letiahomes.Domain.Entities
         public Guid Id { get; set; }
         public Guid LandlordProfileId { get; set; }
         public Guid BookingId { get; set; }
-        public decimal Amount { get; set; }             // TotalAmount minus platform fee
-        public decimal PlatformFee { get; set; }        // your cut
+        public long AmountKobo { get; set; }
+        public long PlatformFeeKobo { get; set; }       // your cut
         public PayoutStatus Status { get; set; } = PayoutStatus.Pending;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

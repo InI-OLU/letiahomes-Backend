@@ -15,7 +15,7 @@ namespace letiahomes.Domain.Entities
         public string City { get; set; }
         public string State { get; set; }
         public string Country { get; set; } = "Nigeria";
-        public decimal PricePerNight { get; set; }
+        public long PricePerNightKobo { get; set; }
         public int MaxGuests { get; set; }
         public int Bedrooms { get; set; }
         public int Bathrooms { get; set; }

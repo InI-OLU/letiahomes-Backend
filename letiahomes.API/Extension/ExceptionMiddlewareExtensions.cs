@@ -19,14 +19,12 @@ namespace letiahomes.API.Extension
                     if (ctxFeature != null)
                     {
                         Log.Error("An error occured: {Error}", ctxFeature.Error);
-
-                        var message = ctxFeature.Error.Message;
                         ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                        await ctx.Response.WriteAsync(
-                            JsonSerializer.Serialize(
-                                new ApiResult<string>(message, ctx.Response.StatusCode)
-                            )
-                        );
+                        await ctx.Response.WriteAsync(new ErrorDetails
+                        {
+                            StatusCode = ctx.Response.StatusCode,
+                            Message = "An unexpected error occurred" 
+                        }.ToString());
                     }
                 });
             });

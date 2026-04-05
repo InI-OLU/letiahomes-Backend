@@ -7,9 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace letiahomes.Application.Features.Auth.Commands.VerifyOtp
+namespace letiahomes.Application.Features.Auth.Commands.RevokeToken
 {
-    public record VerifyOtpCommand(VerifyEmailRequest request): IRequest<ApiResult<string>>
-    {
-    }
+    public sealed record RevokeTokenCommand(RevokeTokenRequest request)
+        : IRequest<ApiResult<string>>;
 }

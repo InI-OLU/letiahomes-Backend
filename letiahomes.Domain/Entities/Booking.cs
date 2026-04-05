@@ -15,7 +15,7 @@ namespace letiahomes.Domain.Entities
         public DateTime CheckIn { get; set; }
         public DateTime CheckOut { get; set; }
         public int NumberOfGuests { get; set; }
-        public decimal TotalAmount { get; set; }
+        public long TotalAmountKobo { get; set; }
         public BookingStatus Status { get; set; } = BookingStatus.Pending;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
