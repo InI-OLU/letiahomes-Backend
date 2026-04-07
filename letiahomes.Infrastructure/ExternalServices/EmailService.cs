@@ -2,26 +2,30 @@
 using letiahomes.Application.Settings;
 using Mailjet.Client;
 using Mailjet.Client.Resources;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
-using System;
 
 namespace letiahomes.Infrastructure.ExternalServices
 {
-    public class EmailService:IEmailService
+    public class EmailService : IEmailService
     {
-
         private readonly MailjetSettings _jetSettings;
         private readonly IMailjetClient _mailjetClient;
-        public EmailService(IOptions<MailjetSettings> jetOptions,
-                            IMailjetClient mailjetClient)
+        private readonly ILogger<EmailService> _logger;
+
+        public EmailService(
+            IOptions<MailjetSettings> jetOptions,
+            IMailjetClient mailjetClient,
+            ILogger<EmailService> logger)
         {
             _mailjetClient = mailjetClient;
+            _logger = logger;
             _jetSettings = jetOptions.Value ??
-             throw new ArgumentNullException("MailJetSettings");
+                throw new ArgumentNullException(nameof(jetOptions), "MailJetSettings is not configured.");
         }
 
-        public async Task<bool> SendAsync(string recipient, string message, string subject)
+        public async Task<bool> SendAsync(string recipient, string subject, string message)
         {
             try
             {
@@ -33,16 +37,14 @@ namespace letiahomes.Infrastructure.ExternalServices
                     new JObject
                     {
                         {
-                            "From",
-                            new JObject
+                            "From", new JObject
                             {
                                 { "Email", _jetSettings.SenderEmail },
                                 { "Name", _jetSettings.SenderName }
                             }
                         },
                         {
-                            "To",
-                            new JArray
+                            "To", new JArray
                             {
                                 new JObject
                                 {
@@ -59,18 +61,20 @@ namespace letiahomes.Infrastructure.ExternalServices
                 var response = await _mailjetClient.PostAsync(request);
                 return response?.IsSuccessStatusCode ?? false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                _logger.LogError(ex, "Failed to send email to {Recipient} with subject '{Subject}'", recipient, subject);
+                return false;
             }
         }
+
         public async Task<bool> SendAccountVerifiedAsync(string recipient, string firstName, string loginLink)
         {
             try
             {
                 var templatePath = Path.Combine(
                     Directory.GetCurrentDirectory(),
-                    "wwwroot", "EmailTemplate", "account-verified.html"
+                    "wwwroot", "EmailTemplate", "AccountVerified.html"
                 );
 
                 var template = await File.ReadAllTextAsync(templatePath);
@@ -83,34 +87,86 @@ namespace letiahomes.Infrastructure.ExternalServices
                 {
                     Resource = SendV31.Resource
                 }.Property("Messages", new JArray
-        {
-            new JObject
-            {
                 {
-                    "From", new JObject
+                    new JObject
                     {
-                        { "Email", _jetSettings.SenderEmail },
-                        { "Name", _jetSettings.SenderName }
+                        {
+                            "From", new JObject
+                            {
+                                { "Email", _jetSettings.SenderEmail },
+                                { "Name", _jetSettings.SenderName }
+                            }
+                        },
+                        {
+                            "To", new JArray
+                            {
+                                new JObject { { "Email", recipient } }
+                            }
+                        },
+                        { "Subject", "Your Letia Homes Account is Verified" },
+                        { "TextPart", $"Hello {firstName}, your account has been verified. Login here: {loginLink}" },
+                        { "HtmlPart", htmlBody }
                     }
-                },
-                {
-                    "To", new JArray
-                    {
-                        new JObject { { "Email", recipient } }
-                    }
-                },
-                { "Subject", "Your Letia Homes Account is Verified" },
-                { "TextPart", $"Hello {firstName}, your account has been verified. Login here: {loginLink}" },
-                { "HtmlPart", htmlBody }
-            }
-        });
+                });
 
                 var response = await _mailjetClient.PostAsync(request);
                 return response?.IsSuccessStatusCode ?? false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                _logger.LogError(ex, "Failed to send account verified email to {Recipient}", recipient);
+                return false;
+            }
+        }
+
+        public async Task<bool> SendPasswordResetAsync(string recipient, string firstName, string resetLink)
+        {
+            try
+            {
+                var templatePath = Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "wwwroot", "EmailTemplate", "ResetPassword.html"
+                );
+
+                var template = await File.ReadAllTextAsync(templatePath);
+
+                var htmlBody = template
+                    .Replace("{{FirstName}}", firstName)
+                    .Replace("{{RESET_LINK}}", resetLink);
+
+                var request = new MailjetRequest
+                {
+                    Resource = SendV31.Resource
+                }.Property("Messages", new JArray
+                {
+                    new JObject
+                    {
+                        {
+                            "From", new JObject
+                            {
+                                { "Email", _jetSettings.SenderEmail },
+                                { "Name", _jetSettings.SenderName }
+                            }
+                        },
+                        {
+                            "To", new JArray
+                            {
+                                new JObject { { "Email", recipient } }
+                            }
+                        },
+                        { "Subject", "Password Reset Request" },
+                        { "TextPart", $"Hello {firstName}, you can reset your password using this link: {resetLink}" },
+                        { "HtmlPart", htmlBody }
+                    }
+                });
+
+                var response = await _mailjetClient.PostAsync(request);
+                return response?.IsSuccessStatusCode ?? false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send password reset email to {Recipient}", recipient);
+                return false;
             }
         }
     }

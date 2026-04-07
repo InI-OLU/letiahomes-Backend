@@ -27,9 +27,9 @@ public sealed class RevokeTokenCommandHandler
         RevokeTokenCommand request,
         CancellationToken cancellationToken)
     {
-        // 🔍 Find the refresh token
+
         var token = await _context.RefreshTokens
-            .FirstOrDefaultAsync(x => x.Token == request.RefreshToken, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Token == request. request.RefreshToken, cancellationToken);
 
         if (token == null)
         {
@@ -43,10 +43,7 @@ public sealed class RevokeTokenCommandHandler
                 new CustomError("400", "Token already revoked"));
         }
 
-        // 🔒 Revoke token
-        token.IsRevoked = true;
 
-        // 🔍 Get user from token (NOT from request)
         var user = await _userManager.FindByIdAsync(token.UserId);
 
         if (user == null)
@@ -54,8 +51,8 @@ public sealed class RevokeTokenCommandHandler
             return ApiResult<string>.Failure(
                 new CustomError("404", "User not found"));
         }
+        token.IsRevoked = true;
 
-        // 🔥 OPTIONAL: invalidate all sessions
         await _userManager.UpdateSecurityStampAsync(user);
 
         await _context.SaveChangesAsync(cancellationToken);

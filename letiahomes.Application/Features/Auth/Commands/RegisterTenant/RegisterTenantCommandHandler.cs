@@ -43,7 +43,7 @@ namespace letiahomes.Application.Features.Auth.Commands.RegisterTenant
             _logger = logger;
             _host = host;
             _configuration = configuration;
-            _options = options.Value;
+            _options = options;
         }
 
         public async Task<ApiResult<string>> Handle(
@@ -51,7 +51,7 @@ namespace letiahomes.Application.Features.Auth.Commands.RegisterTenant
             CancellationToken cancellationToken)
         {
             var existingUser = await _userManager.FindByEmailAsync(request.Request.Email);
-            if (existingUser == null)
+            if (existingUser != null)
             {
                 return ApiResult<string>.Failure(
                     new CustomError("409", "A user with this email already exists."));
@@ -78,32 +78,41 @@ namespace letiahomes.Application.Features.Auth.Commands.RegisterTenant
             await _userManager.AddToRoleAsync(user, "Tenant");
             var tenantProfile = new TenantProfile
             {
-                Id = Guid.NewGuid(),
+       
                 AppUserId = user.Id,
-                CreatedAt = DateTime.UtcNow
+                
             };
 
             await _context.TenantProfiles.AddAsync(tenantProfile, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
             _logger.LogInformation("Tenant registered successfully: {Email}", user.Email);
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var encodedToken = Uri.EscapeDataString(token);
 
-            var frontendUrl = _appSettings.FrontendUrl;
+            var frontendUrl = _options.Value.FrontendUrl;
 
-            if (string.IsNullOrWhiteSpace(frontendUrl))
-            {
-                _logger.LogError("Frontend URL not configured");
-
-                return ApiResult<string>.Failure(
-                    new CustomError("500", "Server configuration error"));
-            }
-            var confirmationLink = $"{FrontendUrl}/confirm-email" +
+            var confirmationLink = $"{frontendUrl}/confirm-email" +
                                    $"?userId={user.Id}&token={encodedToken}";
             var message = GetAccountVerificationMessage(user.FirstName, confirmationLink);
 
-            await _emailService.SendAsync(user.Email, "Confirm your account", message);
-
+            var emailSent = await _emailService.SendAsync(user.Email, "Confirm your account", message);
+            if (!emailSent)
+            {
+                await _userManager.DeleteAsync(user);
+                return ApiResult<string>.Failure(
+                    new CustomError("500", "Failed to send confirmation email. Please try again."));
+            }
+            _logger.LogInformation(
+                                """
+                                Email Confirmation Details:
+                                 Email: {Email}
+                                UserId: {UserId}
+                                Token: {Token}
+                                """,
+                                user.Email,
+                                user.Id,
+                                token
+                               );
+            await _context.SaveChangesAsync(cancellationToken);
             return ApiResult<string>.Success("Registration successful. Please check your email to verify your account.");
         }
 

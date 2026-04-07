@@ -7,10 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace letiahomes.Application.Features.Auth.Commands.RegisterLandlord
+namespace letiahomes.Application.Features.Auth.Commands.PasswordChange
 {
-    public record RegisterLandlordCommand(RegisterLandlordRequest Request):IRequest<ApiResult<string>>;
-    
-    
+    public record PasswordChangeCommand(string UserId, ChangePasswordRequest Request) : IRequest<ApiResult<string>>;
 
 }

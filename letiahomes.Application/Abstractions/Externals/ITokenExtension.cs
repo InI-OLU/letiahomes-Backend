@@ -1,4 +1,5 @@
-﻿using System;
+﻿using letiahomes.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +9,7 @@ namespace letiahomes.Application.Abstractions.Externals
 {
     public interface ITokenExtension
     {
+        string GenerateAccessToken(AppUser user, IList<string> roles);
+        string GenerateRefreshToken();
     }
 }

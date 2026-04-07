@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.Features.Auth.Commands.Login
 {
-   public record LoginCommand(LoginRequest login):IRequest<ApiResult<string>>;
-    
+    public sealed record LoginCommand(
+       LoginRequest login
+    ) : IRequest<ApiResult<TokenResponse>>;
+
 }

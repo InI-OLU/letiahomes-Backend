@@ -5,21 +5,25 @@ using letiahomes.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 public sealed class VerifyOtpCommandHandler : IRequestHandler<VerifyOtpCommand, ApiResult<string>>
 {
     private readonly UserManager<AppUser> _userManager;
     private readonly IConfiguration _configuration;
-    private readonly IEmailService _emailService;  
+    private readonly IEmailService _emailService;
+    private readonly ILogger<VerifyOtpCommandHandler> _logger;
 
     public VerifyOtpCommandHandler(
         UserManager<AppUser> userManager,
         IConfiguration configuration,
-        IEmailService emailService)  
+        IEmailService emailService,
+        ILogger<VerifyOtpCommandHandler> logger)  
     {
         _userManager = userManager;
         _configuration = configuration;
         _emailService = emailService;
+        _logger = logger;
     }
 
     public async Task<ApiResult<string>> Handle(VerifyOtpCommand request, CancellationToken cancellationToken)
@@ -39,17 +43,22 @@ public sealed class VerifyOtpCommandHandler : IRequestHandler<VerifyOtpCommand, 
         user.IsVerified = true;
         await _userManager.UpdateAsync(user);
 
-        var baseUrl = _configuration["AppSettings:BaseUrl"]
+        var baseUrl = _configuration["AppSettings:FrontendUrl"]
             ?? throw new InvalidOperationException("BaseUrl is not configured.");
 
         var loginLink = $"{baseUrl}/auth/login";
 
-        await _emailService.SendAccountVerifiedAsync(
+       var emailSent = await _emailService.SendAccountVerifiedAsync(
             user.Email!,
             user.FirstName,
             loginLink
         );
-
+        if (!emailSent)
+        {
+          _logger.LogError("Failed to send UserVerified email to {Email}", user.Email);
+            return ApiResult<string>.Failure(
+                new CustomError("500", "Failed to send confirmation email. Please try again."));
+        }
         return ApiResult<string>.Success("Account verified successfully. You can now log in.");
     }
 }

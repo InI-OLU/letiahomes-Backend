@@ -9,8 +9,8 @@ namespace letiahomes.Domain.Entities
     public class RefreshToken
     {
         public Guid Id { get; set; }
-        public string Token { get; set; } = default!;
-        public string UserId { get; set; } = default!;
+        public required string Token { get; set; } 
+        public  required string UserId { get; set; } 
         public DateTime ExpiryDate { get; set; }
         public bool IsRevoked { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

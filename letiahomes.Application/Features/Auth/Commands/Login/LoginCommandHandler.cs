@@ -1,52 +1,96 @@
-﻿using letiahomes.Application.Common;
+﻿using letiahomes.Application.Abstractions.Externals;
+using letiahomes.Application.Common;
+using letiahomes.Application.DTOs.Auth;
 using letiahomes.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+using RefreshTokenEntity = letiahomes.Domain.Entities.RefreshToken;
 
 namespace letiahomes.Application.Features.Auth.Commands.Login
 {
-    public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, ApiResult<string>>
+    public sealed class LoginCommandHandler
+        : IRequestHandler<LoginCommand, ApiResult<TokenResponse>>
     {
         private readonly UserManager<AppUser> _userManager;
+        private readonly IApplicationDbContext _context;
+        private readonly ITokenExtension _tokenExtension;
         private readonly ILogger<LoginCommandHandler> _logger;
 
-        public LoginCommandHandler(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager,
-                                   ILogger<LoginCommandHandler> logger) {
+        public LoginCommandHandler(
+            UserManager<AppUser> userManager,
+            IApplicationDbContext context,
+            ITokenExtension tokenExtension,
+            ILogger<LoginCommandHandler> logger)
+        {
             _userManager = userManager;
+            _context = context;
+            _tokenExtension = tokenExtension;
             _logger = logger;
         }
-        public async Task<ApiResult<string>> Handle(LoginCommand request, CancellationToken cancellationToken)
+
+        public async Task<ApiResult<TokenResponse>> Handle(
+            LoginCommand request,
+            CancellationToken cancellationToken)
         {
             var user = await _userManager.FindByEmailAsync(request.login.Email);
             if (user == null)
-            {
-                return ApiResult<string>.Failure(
-                    new CustomError("401", "Login Failed."));
-            }
-            if (!await _userManager.IsEmailConfirmedAsync(user))
-            {
-                return ApiResult<string>.Failure( new CustomError("403","Login Failed ,Unverified Account."));
-            }
-            var result = await _signInManager.CheckPasswordSignInAsync(user, request.login.Password, lockoutOnFailure: true);
+                return ApiResult<TokenResponse>.Failure(
+                    new CustomError("401", "Invalid email or password"));
 
-            if (!result.Succeeded)
+            if (!user.IsVerified)
+                return ApiResult<TokenResponse>.Failure(
+                    new CustomError("403", "Please verify your email before logging in"));
+
+            if (!user.IsActive)
+                return ApiResult<TokenResponse>.Failure(
+                    new CustomError("403", "Your account has been suspended"));
+
+            var passwordValid = await _userManager.CheckPasswordAsync(user, request.login.Password);
+            if (!passwordValid)
             {
-                return ApiResult<string>.Failure(new CustomError("403", "Unauthorized"));
+
+                await _userManager.AccessFailedAsync(user);
+                if (await _userManager.IsLockedOutAsync(user))
+                {
+                    _logger.LogWarning("User {UserId} has been locked out after failed attempts", user.Id);
+                    return ApiResult<TokenResponse>.Failure(
+                        new CustomError("423", "Account locked due to multiple failed attempts. Try again later"));
+                }
+
+                return ApiResult<TokenResponse>.Failure(
+                    new CustomError("401", "Invalid email or password"));
             }
+
+            await _userManager.ResetAccessFailedCountAsync(user);
+
             var roles = await _userManager.GetRolesAsync(user);
-            if (roles == null || roles.Count <= 0)
+
+            var accessToken = _tokenExtension.GenerateAccessToken(user, roles);
+            var refreshToken = new RefreshTokenEntity
             {
-                return ApiResult<string>.Failure(new CustomError("400","You can not login at this time"));
-            }
+                Token = _tokenExtension.GenerateRefreshToken(),
+                UserId = user.Id,
+                ExpiryDate = DateTime.UtcNow.AddDays(7),
+                IsRevoked = false
+            };
 
+            var existingTokens = await _context.RefreshTokens
+                .Where(x => x.UserId == user.Id && !x.IsRevoked)
+                .ToListAsync(cancellationToken);
 
-            throw new NotImplementedException();
+            foreach (var token in existingTokens)
+                token.IsRevoked = true;
+
+            await _context.RefreshTokens.AddAsync(refreshToken, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            _logger.LogInformation("User {UserId} logged in successfully", user.Id);
+
+            return ApiResult<TokenResponse>.Success(
+                new TokenResponse(accessToken, refreshToken.Token));
         }
     }
 }

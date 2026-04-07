@@ -6,6 +6,6 @@ public interface IApplicationDbContext
 {
     DbSet<TenantProfile> TenantProfiles { get; }
     DbSet<LandlordProfile> LandlordProfiles { get; }
-    DbSet<OtpEntry> OtpEntries { get; }
+    DbSet<RefreshToken> RefreshTokens { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
