@@ -1,12 +1,14 @@
 using FluentValidation;
 using letiahomes.API.Extension;
 using letiahomes.Application.Abstractions.Externals;
+using letiahomes.Application.Abstractions.IRepository;
 using letiahomes.Application.Common;
 using letiahomes.Application.Common.Behaviours;
 using letiahomes.Application.Settings;
 using letiahomes.Domain.Entities;
 using letiahomes.Infrastructure.Data;
 using letiahomes.Infrastructure.ExternalServices;
+using letiahomes.Infrastructure.RepsitoryManager;
 using Mailjet.Client;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -16,6 +18,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.RateLimiting;
 
@@ -93,6 +96,29 @@ try
     Encoding.UTF8.GetBytes(config["JwtSettings:SecretKey"]
         ?? throw new InvalidOperationException("JwtSettings:SecretKey is not configured.")))
         };
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var userManager = context.HttpContext.RequestServices
+                    .GetRequiredService<UserManager<AppUser>>();
+
+                var userId = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (userId == null)
+                {
+                    context.Fail("Unauthorized");
+                    return;
+                }
+
+                var user = await userManager.FindByIdAsync(userId);
+
+                if (user == null || !user.IsActive)
+                {
+                    context.Fail("User is inactive");
+                }
+            }
+        };
     });
 
   
@@ -118,7 +144,7 @@ try
         typeof(ValidationBehaviour<,>));
 
     builder.Services.AddScoped<IEmailService, EmailService>();
-    builder.Services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
+    builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
     builder.Services.AddScoped<ITokenExtension, TokenExtension>();
 
    

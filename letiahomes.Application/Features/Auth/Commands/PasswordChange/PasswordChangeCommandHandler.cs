@@ -1,4 +1,5 @@
 ﻿using letiahomes.Application.Abstractions.Externals;
+using letiahomes.Application.Abstractions.IRepository;
 using letiahomes.Application.Common;
 using letiahomes.Domain.Entities;
 using MediatR;
@@ -12,17 +13,17 @@ namespace letiahomes.Application.Features.Auth.Commands.PasswordChange
         : IRequestHandler<PasswordChangeCommand, ApiResult<string>>
     {
         private readonly UserManager<AppUser> _userManager;
-        private readonly IApplicationDbContext _context;
         private readonly ILogger<PasswordChangeCommandHandler> _logger;
+        private readonly IRepositoryManager _repositoryManager;
 
         public PasswordChangeCommandHandler(
             UserManager<AppUser> userManager,
-            IApplicationDbContext context,
-            ILogger<PasswordChangeCommandHandler> logger)
+            ILogger<PasswordChangeCommandHandler> logger,
+            IRepositoryManager repositoryManager)
         {
             _userManager = userManager;
-            _context = context;
             _logger = logger;
+            _repositoryManager = repositoryManager;
         }
 
         public async Task<ApiResult<string>> Handle(
@@ -57,16 +58,15 @@ namespace letiahomes.Application.Features.Auth.Commands.PasswordChange
             }
 
             // Revoke all existing refresh tokens so all sessions are invalidated
-            var userTokens = await _context.RefreshTokens
-                .Where(t => t.UserId == user.Id && !t.IsRevoked)
+            var userTokens = await _repositoryManager.RefreshTokens
+                .FindAll(t => t.UserId == user.Id && !t.IsRevoked, false)
                 .ToListAsync(cancellationToken);
 
             foreach (var token in userTokens)
                 token.IsRevoked = true;
 
-            // Invalidate all cookie-based sessions and JWT security stamp checks
             await _userManager.UpdateSecurityStampAsync(user);
-            await _context.SaveChangesAsync(cancellationToken);
+            await _repositoryManager.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation(
                 "User {UserId} changed their password. {TokenCount} refresh token(s) revoked",

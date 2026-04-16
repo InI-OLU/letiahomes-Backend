@@ -1,26 +1,27 @@
-﻿using letiahomes.Application.Common;
+﻿using letiahomes.Application.Abstractions.IRepository;
+using letiahomes.Application.Common;
 using letiahomes.Application.Features.Auth.Commands.RevokeToken;
 using letiahomes.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 public sealed class RevokeTokenCommandHandler
     : IRequestHandler<RevokeTokenCommand, ApiResult<string>>
 {
-    private readonly IApplicationDbContext _context;
+
     private readonly UserManager<AppUser> _userManager;
     private readonly ILogger<RevokeTokenCommandHandler> _logger;
+    private readonly IRepositoryManager _repositoryManager;
 
     public RevokeTokenCommandHandler(
-        IApplicationDbContext context,
         UserManager<AppUser> userManager,
-        ILogger<RevokeTokenCommandHandler> logger)
+        ILogger<RevokeTokenCommandHandler> logger,
+        IRepositoryManager repositoryManager)
     {
-        _context = context;
         _userManager = userManager;
         _logger = logger;
+        _repositoryManager = repositoryManager;
     }
 
     public async Task<ApiResult<string>> Handle(
@@ -28,8 +29,8 @@ public sealed class RevokeTokenCommandHandler
         CancellationToken cancellationToken)
     {
 
-        var token = await _context.RefreshTokens
-            .FirstOrDefaultAsync(x => x.Token == request. request.RefreshToken, cancellationToken);
+       
+        var token = await _repositoryManager.RefreshTokens.GetRefreshToken(request.UserId, cancellationToken);
 
         if (token == null)
         {
@@ -51,11 +52,16 @@ public sealed class RevokeTokenCommandHandler
             return ApiResult<string>.Failure(
                 new CustomError("404", "User not found"));
         }
-        token.IsRevoked = true;
+        var tokens = await _repositoryManager.RefreshTokens.GetAllRefreshTokens(user.Id, cancellationToken); 
+
+       foreach (var t in tokens)
+        {
+            t.IsRevoked = true;
+        }
 
         await _userManager.UpdateSecurityStampAsync(user);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await _repositoryManager.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("User {UserId} logged out", user.Id);
 

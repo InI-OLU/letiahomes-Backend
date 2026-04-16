@@ -9,5 +9,6 @@ namespace letiahomes.Domain.Entities
         public bool IsActive { get; set; } = false;
         public bool IsVerified { get; set; } = false;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; }
     }
 }

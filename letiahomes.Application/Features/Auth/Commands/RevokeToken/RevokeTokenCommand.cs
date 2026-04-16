@@ -9,6 +9,6 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.Features.Auth.Commands.RevokeToken
 {
-    public sealed record RevokeTokenCommand(RevokeTokenRequest request)
+    public sealed record RevokeTokenCommand(string UserId)
         : IRequest<ApiResult<string>>;
 }

@@ -1,4 +1,5 @@
-﻿using letiahomes.Domain.Enums;
+﻿using letiahomes.Domain.Common;
+using letiahomes.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,9 +8,8 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Domain.Entities
 {
-    public class Booking
+    public class Booking:AuditableEntity
     {
-        public Guid Id { get; set; }
         public Guid PropertyId { get; set; }
         public Guid TenantProfileId { get; set; }
         public DateTime CheckIn { get; set; }
@@ -17,7 +17,6 @@ namespace letiahomes.Domain.Entities
         public int NumberOfGuests { get; set; }
         public long TotalAmountKobo { get; set; }
         public BookingStatus Status { get; set; } = BookingStatus.Pending;
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // navigation
         public Property Property { get; set; }

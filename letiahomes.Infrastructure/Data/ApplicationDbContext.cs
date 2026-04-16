@@ -1,11 +1,12 @@
-﻿using letiahomes.Domain.Entities;
+﻿using letiahomes.Domain.Common;
+using letiahomes.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace letiahomes.Infrastructure.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<AppUser>,IApplicationDbContext
+    public class ApplicationDbContext : IdentityDbContext<AppUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -22,6 +23,37 @@ namespace letiahomes.Infrastructure.Data
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Payout> Payouts { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public override async Task<int> SaveChangesAsync(
+    CancellationToken cancellationToken = default)
+        {
+            var auditableEntries = ChangeTracker
+                .Entries<AuditableEntity>();
+
+            foreach (var entry in auditableEntries)
+            {
+                switch (entry.State)
+                {
+                    case EntityState.Added:
+                        entry.Entity.CreatedAt = DateTime.UtcNow;
+                        break;
+
+                    case EntityState.Modified:
+                        entry.Entity.UpdatedAt = DateTime.UtcNow;
+                        break;
+                }
+            }
+
+            var refreshTokenEntries = ChangeTracker
+                .Entries<RefreshToken>()
+                .Where(e => e.State == EntityState.Added);
+
+            foreach (var entry in refreshTokenEntries)
+            {
+                entry.Entity.CreatedAt = DateTime.UtcNow;
+            }
+
+            return await base.SaveChangesAsync(cancellationToken);
+        }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -162,8 +194,14 @@ namespace letiahomes.Infrastructure.Data
                 .WithMany(l => l.Payouts)
                 .HasForeignKey(p => p.LandlordProfileId)
                 .OnDelete(DeleteBehavior.Restrict);
+            //RefreshToken 
+            builder.Entity<RefreshToken>()
+                 .HasOne<AppUser>()
+                .WithMany()
+                .HasForeignKey(rt => rt.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-           
+
         }
     }
 }

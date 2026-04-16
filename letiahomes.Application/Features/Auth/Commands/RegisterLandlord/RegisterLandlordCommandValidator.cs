@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.Features.Auth.Commands.RegisterLandlord
 {
-    internal class RegisterLandlordCommandValidator
+   public class RegisterLandlordCommandValidator
     {
     }
 }

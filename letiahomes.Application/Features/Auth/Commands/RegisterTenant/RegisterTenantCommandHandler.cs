@@ -1,4 +1,5 @@
 ﻿using letiahomes.Application.Abstractions.Externals;
+using letiahomes.Application.Abstractions.IRepository;
 using letiahomes.Application.Common;
 using letiahomes.Application.DTOs.Auth;
 using letiahomes.Domain.Entities;
@@ -21,29 +22,29 @@ namespace letiahomes.Application.Features.Auth.Commands.RegisterTenant
      : IRequestHandler<RegisterTenantCommand, ApiResult<string>>
     {
         private readonly UserManager<AppUser> _userManager;
-        private readonly IApplicationDbContext _context;
         private readonly IEmailService _emailService;
         private readonly ILogger<RegisterTenantCommandHandler> _logger;
         private readonly IHostEnvironment _host;
         private readonly IConfiguration _configuration;
         private readonly IOptions<AppSettings> _options;
+        private readonly IRepositoryManager _repositoryManager;
 
         public RegisterTenantCommandHandler(
             UserManager<AppUser> userManager,
-            IApplicationDbContext context,
             IEmailService emailService,
             ILogger<RegisterTenantCommandHandler> logger,
             IHostEnvironment host,
             IConfiguration configuration,
-            IOptions<AppSettings> options)
+            IOptions<AppSettings> options,
+            IRepositoryManager repositoryManager)
         {
             _userManager = userManager;
-            _context = context;
             _emailService = emailService;
             _logger = logger;
             _host = host;
             _configuration = configuration;
             _options = options;
+            _repositoryManager = repositoryManager;
         }
 
         public async Task<ApiResult<string>> Handle(
@@ -82,8 +83,7 @@ namespace letiahomes.Application.Features.Auth.Commands.RegisterTenant
                 AppUserId = user.Id,
                 
             };
-
-            await _context.TenantProfiles.AddAsync(tenantProfile, cancellationToken);
+            await _repositoryManager.Tenants.AddAsync(tenantProfile);
             _logger.LogInformation("Tenant registered successfully: {Email}", user.Email);
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var encodedToken = Uri.EscapeDataString(token);
@@ -112,7 +112,7 @@ namespace letiahomes.Application.Features.Auth.Commands.RegisterTenant
                                 user.Id,
                                 token
                                );
-            await _context.SaveChangesAsync(cancellationToken);
+            await _repositoryManager.SaveChangesAsync();
             return ApiResult<string>.Success("Registration successful. Please check your email to verify your account.");
         }
 

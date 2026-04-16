@@ -1,4 +1,6 @@
-﻿using System;
+﻿using letiahomes.Domain.Common;
+using letiahomes.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,9 +8,8 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Domain.Entities
 {
-    public class Property
+    public class Property:AuditableEntity
     {
-        public Guid Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public string Address { get; set; }
@@ -21,9 +22,9 @@ namespace letiahomes.Domain.Entities
         public int Bathrooms { get; set; }
         public bool IsAvailable { get; set; } = true;
         public bool IsApproved { get; set; } = false;  // admin approves listing
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public Guid LandlordProfileId { get; set; }
-
+        public PropertyType PropertyType { get; set; }      
+        public ListingType ListingType { get; set; }
         // navigation
         public LandlordProfile Landlord { get; set; }
         public ICollection<PropertyImage> Images { get; set; }

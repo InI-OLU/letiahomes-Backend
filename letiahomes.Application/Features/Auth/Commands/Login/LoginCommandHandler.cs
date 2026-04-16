@@ -1,4 +1,5 @@
 ﻿using letiahomes.Application.Abstractions.Externals;
+using letiahomes.Application.Abstractions.IRepository;
 using letiahomes.Application.Common;
 using letiahomes.Application.DTOs.Auth;
 using letiahomes.Domain.Entities;
@@ -15,20 +16,20 @@ namespace letiahomes.Application.Features.Auth.Commands.Login
         : IRequestHandler<LoginCommand, ApiResult<TokenResponse>>
     {
         private readonly UserManager<AppUser> _userManager;
-        private readonly IApplicationDbContext _context;
         private readonly ITokenExtension _tokenExtension;
         private readonly ILogger<LoginCommandHandler> _logger;
+        private readonly IRepositoryManager _repositoryManager;
 
         public LoginCommandHandler(
             UserManager<AppUser> userManager,
-            IApplicationDbContext context,
             ITokenExtension tokenExtension,
-            ILogger<LoginCommandHandler> logger)
+            ILogger<LoginCommandHandler> logger,
+            IRepositoryManager repositoryManager)
         {
             _userManager = userManager;
-            _context = context;
             _tokenExtension = tokenExtension;
             _logger = logger;
+            _repositoryManager = repositoryManager;
         }
 
         public async Task<ApiResult<TokenResponse>> Handle(
@@ -77,15 +78,15 @@ namespace letiahomes.Application.Features.Auth.Commands.Login
                 IsRevoked = false
             };
 
-            var existingTokens = await _context.RefreshTokens
-                .Where(x => x.UserId == user.Id && !x.IsRevoked)
+            var existingTokens = await _repositoryManager.RefreshTokens
+                .FindAll(x => x.UserId == user.Id && !x.IsRevoked,false)
                 .ToListAsync(cancellationToken);
 
             foreach (var token in existingTokens)
                 token.IsRevoked = true;
 
-            await _context.RefreshTokens.AddAsync(refreshToken, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
+            await _repositoryManager.RefreshTokens.AddAsync(refreshToken);
+            await _repositoryManager.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation("User {UserId} logged in successfully", user.Id);
 

@@ -1,4 +1,5 @@
 ﻿using letiahomes.Application.Abstractions.Externals;
+using letiahomes.Application.Abstractions.IRepository;
 using letiahomes.Application.Common;
 using letiahomes.Application.DTOs.Auth;
 using letiahomes.Domain.Entities;
@@ -7,7 +8,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-// alias fixes the namespace vs type conflict
 using RefreshTokenEntity = letiahomes.Domain.Entities.RefreshToken;
 
 namespace letiahomes.Application.Features.Auth.Commands.RefreshToken
@@ -15,29 +15,29 @@ namespace letiahomes.Application.Features.Auth.Commands.RefreshToken
     public sealed class RefreshTokenCommandHandler
         : IRequestHandler<RefreshTokenCommand, ApiResult<TokenResponse>>
     {
-        private readonly IApplicationDbContext _context;
         private readonly UserManager<AppUser> _userManager;
         private readonly ITokenExtension _tokenExtension;
         private readonly ILogger<RefreshTokenCommandHandler> _logger;
+        private readonly IRepositoryManager _repositoryManager;
 
         public RefreshTokenCommandHandler(
-            IApplicationDbContext context,
             UserManager<AppUser> userManager,
             ITokenExtension tokenExtension,
-            ILogger<RefreshTokenCommandHandler> logger)
+            ILogger<RefreshTokenCommandHandler> logger,
+            IRepositoryManager repositoryManager)
         {
-            _context = context;
             _userManager = userManager;
             _tokenExtension = tokenExtension;
             _logger = logger;
+            _repositoryManager = repositoryManager;
         }
 
         public async Task<ApiResult<TokenResponse>> Handle(
             RefreshTokenCommand request,
             CancellationToken cancellationToken)
         {
-            var storedToken = await _context.RefreshTokens
-                .FirstOrDefaultAsync(x => x.Token == request.request.RefreshToken, cancellationToken);
+            
+            var storedToken = await _repositoryManager.RefreshTokens.GetRefreshToken(request.request.RefreshToken, cancellationToken);
 
             if (storedToken == null)
                 return ApiResult<TokenResponse>.Failure(
@@ -75,8 +75,8 @@ namespace letiahomes.Application.Features.Auth.Commands.RefreshToken
                 IsRevoked = false
             };
 
-            await _context.RefreshTokens.AddAsync(newRefreshToken, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
+            await _repositoryManager.RefreshTokens.AddAsync(newRefreshToken);
+            await _repositoryManager.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation("User {UserId} refreshed tokens successfully", user.Id);
 

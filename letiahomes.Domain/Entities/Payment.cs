@@ -1,4 +1,5 @@
-﻿using letiahomes.Domain.Enums;
+﻿using letiahomes.Domain.Common;
+using letiahomes.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,9 +8,8 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Domain.Entities
 {
-    public class Payment
+    public class Payment:AuditableEntity
     {
-        public Guid Id { get; set; }
         public Guid BookingId { get; set; }
         public string PaystackReference { get; set; }   // from Paystack
         public long AmountKobo { get; set; }

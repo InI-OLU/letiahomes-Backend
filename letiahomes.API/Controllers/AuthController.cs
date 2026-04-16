@@ -1,5 +1,6 @@
 ﻿using letiahomes.Application.Common;
 using letiahomes.Application.DTOs.Auth;
+using letiahomes.Application.Features.Auth.Commands.BanUser;
 using letiahomes.Application.Features.Auth.Commands.ForgottenPassword;
 using letiahomes.Application.Features.Auth.Commands.Login;
 using letiahomes.Application.Features.Auth.Commands.PasswordChange;
@@ -109,7 +110,7 @@ namespace letiahomes.API.Controllers
         }
 
 
-        [Authorize]
+        [Authorize(Roles = "Admin,Landlord,Tenant")]
         [HttpPost("change-password")]
         public async Task<IActionResult> ChangePassword(
             [FromBody] ChangePasswordRequest request,
@@ -134,14 +135,24 @@ namespace letiahomes.API.Controllers
                 new RefreshTokenCommand(request), cancellationToken);
             return result.IsSuccess ? Ok(result) : Unauthorized(result);
         }
-        [Authorize]
-        [HttpPost("revoke-token")]
+        [Authorize(Roles = "Admin,Landlord,Tenant")]
+        [HttpPost("logout")]
         public async Task<IActionResult> RevokeToken(
             [FromBody] RevokeTokenRequest request,
             CancellationToken cancellationToken)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var result = await _mediator.Send(
-                new RevokeTokenCommand(request), cancellationToken);
+                new RevokeTokenCommand(userId), cancellationToken);
+
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+        [Authorize(Roles = "Admin")]
+        [HttpPost("ban-user/{userId}")]
+        public async Task<IActionResult> BanUser( string userId, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(
+                new BanUserCommand(userId), cancellationToken);
 
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
