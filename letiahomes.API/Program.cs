@@ -132,6 +132,13 @@ try
 
     builder.Services.Configure<AppSettings>(config.GetSection("AppSettings"));
 
+    builder.Services.Configure<CloudinarySettings>(
+    builder.Configuration.GetSection("CloudinarySettings")
+);
+
+    // Register Cloudinary service
+    builder.Services.AddSingleton<ICloudinaryService, CloudinaryService>();
+
     builder.Services.AddMediatR(cfg =>
         cfg.RegisterServicesFromAssembly(
             typeof(letiahomes.Application.AssemblyReference).Assembly));
@@ -142,7 +149,8 @@ try
     builder.Services.AddTransient(
         typeof(IPipelineBehavior<,>),
         typeof(ValidationBehaviour<,>));
-
+   
+    //Register  scoped Services
     builder.Services.AddScoped<IEmailService, EmailService>();
     builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
     builder.Services.AddScoped<ITokenExtension, TokenExtension>();

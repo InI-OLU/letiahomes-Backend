@@ -10,11 +10,11 @@ namespace letiahomes.Domain.Entities
 {
     public class Property:AuditableEntity
     {
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public string Address { get; set; }
-        public string City { get; set; }
-        public string State { get; set; }
+        public required string Title { get; set; }
+        public required string Description { get; set; }
+        public required string Address { get; set; }
+        public required string City { get; set; }
+        public  required string State { get; set; }
         public string Country { get; set; } = "Nigeria";
         public long PricePerNightKobo { get; set; }
         public int MaxGuests { get; set; }

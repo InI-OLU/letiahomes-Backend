@@ -12,7 +12,6 @@ namespace letiahomes.Application.Abstractions.Externals
     public interface ICloudinaryService
     {
         Task<bool> DeleteFile(string id);
-        Task<PropertyUploadDto> UploadPhoto(IFormFile photo);
         Task<ApiResult<PropertyUploadDto>> UploadPhoto(IFormFile photo);
     }
 }

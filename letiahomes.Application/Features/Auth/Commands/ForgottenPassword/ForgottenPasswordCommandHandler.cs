@@ -58,6 +58,7 @@ namespace letiahomes.Application.Features.Auth.Commands.ForgottenPassword
             }
 
             _logger.LogInformation("Password reset email sent to {UserId}", user.Id);
+            _logger.LogInformation("Password reset token sent : {Token}", encodedToken);
             return ApiResult<string>.Success("If this email exists you will receive a reset link shortly");
         }
     }

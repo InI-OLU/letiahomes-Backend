@@ -3,6 +3,7 @@ using letiahomes.Application.Common;
 using letiahomes.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,11 +26,13 @@ namespace letiahomes.Application.Features.Properties.Command.CreateProperty
 
         public async Task<ApiResult<string>> Handle(CreatePropertyCommand request, CancellationToken cancellationToken)
         {
-            var landlord = await _userManager.FindByIdAsync(request.userId);
+            var landlord = await _repositoryManager.Landlords.FindAll(x => x.AppUserId == request.userId,false)
+                                                              .FirstOrDefaultAsync();
             if (landlord == null)
             {
                 return ApiResult<string>.Failure(new CustomError("404", "User not found"));
             }
+            
             var Property = new Property
             {
                 Title = request.request.Title,
@@ -40,15 +43,17 @@ namespace letiahomes.Application.Features.Properties.Command.CreateProperty
                 MaxGuests = request.request.MaxGuests,
                 Bathrooms = request.request.Bathrooms,
                 Bedrooms = request.request.Bedrooms,
-                LandlordProfileId = request.userId,
+                LandlordProfileId = landlord.Id,
                 Images = [],
                 Amenities = [],
                 Bookings = [],
                 UnavailableDates = [],
             };
               await _repositoryManager.Properties.AddAsync(Property);
+            await _repositoryManager.SaveChangesAsync();
 
-            return ApiResult<string>.Success("200", "Property created successfully");
+            return ApiResult<string>.Success(
+    $"Property {Property.Id} has been created successfully");
         }
     }
 }

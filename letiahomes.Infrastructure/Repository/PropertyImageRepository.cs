@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using letiahomes.Application.Abstractions.IRepository;
+using letiahomes.Domain.Entities;
+using letiahomes.Infrastructure.Data;
+
 
 namespace letiahomes.Infrastructure.Repository
 {
-    internal class PropertyImageRepository
+    public class PropertyImageRepository(ApplicationDbContext dbContext) : BaseRepository<PropertyImage>(dbContext), IPropertyImageRepository
     {
+        private readonly ApplicationDbContext _dbContext = dbContext;
     }
 }

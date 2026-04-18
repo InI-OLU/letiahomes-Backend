@@ -1,4 +1,5 @@
-﻿using System;
+﻿using letiahomes.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.Abstractions.IRepository
 {
-    internal interface IPropertyImageRepository
+    public interface IPropertyImageRepository:IBaseRepository<PropertyImage>
     {
     }
 }

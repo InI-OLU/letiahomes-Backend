@@ -1,9 +1,11 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using letiahomes.Application.Abstractions.Externals;
+using letiahomes.Application.Common;
 using letiahomes.Application.DTOs.Property;
 using letiahomes.Application.Settings;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,12 +18,12 @@ namespace letiahomes.Infrastructure.ExternalServices
     {
         private readonly Cloudinary _cloud;
 
-        public CloudinaryService(CloudinarySettings settings)
+        public CloudinaryService(IOptions<CloudinarySettings> settings)
         {
             Account cloudinaryAccount = new Account(
-                settings.CloudName,
-                settings.ApiKey,
-                settings.ApiSecret
+                settings.Value.CloudName,
+                settings.Value.ApiKey,
+                settings.Value.ApiSecret
             );
             _cloud = new Cloudinary(cloudinaryAccount);
         }
@@ -34,19 +36,29 @@ namespace letiahomes.Infrastructure.ExternalServices
                 return true;
             return false;
         }
-        public async Task<PropertyUploadDto> UploadPhoto(IFormFile photo)
+        public async Task<ApiResult<PropertyUploadDto>> UploadPhoto(IFormFile photo)
         {
+            if (photo == null || photo.Length == 0)
+            {
+                return ApiResult<PropertyUploadDto>.Failure(
+                    new CustomError("400", "Invalid file"));
+            }
+
             var imageUploadParams = new ImageUploadParams
             {
                 File = new FileDescription(photo.FileName, photo.OpenReadStream()),
-                Transformation = new Transformation().Width(300).Height(300).Gravity("faces").Crop("fill")
             };
-            var res = await _cloud.UploadAsync(imageUploadParams);
-            if (!(res.StatusCode == System.Net.HttpStatusCode.OK))
-                return null;
-                
-            return new PropertyUploadDto(res.PublicId, res.Url.ToString());
 
+            var res = await _cloud.UploadAsync(imageUploadParams);
+
+            if (res.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                return ApiResult<PropertyUploadDto>.Failure(
+                    new CustomError("500", res.Error?.Message ?? "Upload failed"));
+            }
+
+            return ApiResult<PropertyUploadDto>.Success(
+                new PropertyUploadDto(res.PublicId, res.Url.ToString()));
         }
     }
 }
