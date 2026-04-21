@@ -47,6 +47,10 @@ namespace letiahomes.Infrastructure.ExternalServices
             var imageUploadParams = new ImageUploadParams
             {
                 File = new FileDescription(photo.FileName, photo.OpenReadStream()),
+                QualityAnalysis = true,
+                Transformation = new Transformation()
+                                    .Quality("auto")
+                                    .FetchFormat("auto")
             };
 
             var res = await _cloud.UploadAsync(imageUploadParams);
@@ -58,7 +62,7 @@ namespace letiahomes.Infrastructure.ExternalServices
             }
 
             return ApiResult<PropertyUploadDto>.Success(
-                new PropertyUploadDto(res.PublicId, res.Url.ToString()));
+                new PropertyUploadDto(res.PublicId, res.Url.ToString(), res.QualityAnalysis.Focus));
         }
     }
 }

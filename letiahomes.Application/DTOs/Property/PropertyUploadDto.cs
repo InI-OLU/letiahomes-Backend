@@ -7,6 +7,6 @@ using System.Threading.Tasks;
 namespace letiahomes.Application.DTOs.Property
 {
   
-        public record PropertyUploadDto(string PublicId, string Url);
+        public record PropertyUploadDto(string PublicId, string Url,double QualityAnalysis);
    
 }

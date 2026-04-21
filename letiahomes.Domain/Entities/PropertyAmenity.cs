@@ -10,7 +10,7 @@ namespace letiahomes.Domain.Entities
     public class PropertyAmenity:AuditableEntity
     {
         public Guid PropertyId { get; set; }
-        public string Name { get; set; }  // WiFi, Pool, AC, Generator etc
+        public required string Name { get; set; }  // WiFi, Pool, AC, Generator etc
         public Property Property { get; set; }
     }
 }
