@@ -14,6 +14,7 @@ namespace letiahomes.Application.Abstractions.IRepository
         IRefreshTokenRepository RefreshTokens { get; }
         IPropertyRepository Properties { get; }
         IPropertyImageRepository PropertyImage { get; }
+        IPropertyAmenityRepository PropertyAmenity { get; }
 
         Task SaveChangesAsync(CancellationToken cancellationToken = default);
         Task<IDbContextTransaction> BeginTransactionAsync();
