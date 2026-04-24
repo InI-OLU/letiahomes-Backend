@@ -1,5 +1,6 @@
 ﻿using letiahomes.Application.DTOs.Property;
 using letiahomes.Application.Features.Properties.Command.CreateProperty;
+using letiahomes.Application.Features.Properties.Command.CreatePropertyAmenity;
 using letiahomes.Application.Features.Properties.Command.UploadPropertyPicture;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -37,6 +38,16 @@ namespace letiahomes.API.Controllers
             var result = await _mediator.Send(
         new UploadPropertyPictureCommand(uploadRequest), cancellationToken);
             return result.IsSuccess ? Ok(result) : Conflict(result);
+        }
+
+        [Authorize(Roles = "Admin,Landlord")]
+        [HttpPost("create-property-amenities")]
+        public async Task<IActionResult> CreatePropertyAmenity([FromBody] CreatePropertyAmenityRequest propertyAmenityRequest,
+                                                                CancellationToken cancellationToken)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _mediator.Send(new CreatePropertyAmenityCommand(propertyAmenityRequest,userId),cancellationToken);
+            return Ok(result);
         }
     }
 }
