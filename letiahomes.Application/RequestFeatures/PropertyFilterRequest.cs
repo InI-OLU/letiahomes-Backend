@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.RequestFeatures
 {
-    internal class PropertySearchRequest
+    public class PropertySearchRequest
     {
     }
 }
