@@ -39,7 +39,7 @@ namespace letiahomes.Application.Features.Properties.Command.CreatePropertyAmeni
             {
                 return ApiResult<string>.Failure(new CustomError("400", "Property Amenity cannot be empty ."));
             }
-            if (landlord == null || Property.LandlordProfileId == landlord.Id )
+            if (landlord is null || Property.LandlordProfileId != landlord.Id )
             {
                 return ApiResult<string>.Failure(new CustomError("403", "You are not authorized to perform this action"));
             }
@@ -51,7 +51,7 @@ namespace letiahomes.Application.Features.Properties.Command.CreatePropertyAmeni
                 return ApiResult<string>.Failure(new CustomError("404", $"{request.request.Name} has been added to this property"));
             var PropertyAmenity = new PropertyAmenity
             {
-                PropertyId = landlord.Id,
+                PropertyId = Property.Id,
                 Name = request.request.Name
             };
             await _repositoryManager.PropertyAmenity.AddAsync(PropertyAmenity);

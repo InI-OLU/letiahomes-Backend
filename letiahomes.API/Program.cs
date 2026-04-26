@@ -20,6 +20,7 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 
 // Bootstrap logger — catches startup crashes before full config loads
@@ -155,8 +156,10 @@ try
     builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
     builder.Services.AddScoped<ITokenExtension, TokenExtension>();
 
-   
-    builder.Services.AddControllers();
+
+
+    builder.Services.AddControllers().AddJsonOptions(options =>
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
     builder.Services.AddEndpointsApiExplorer();
 
 

@@ -35,7 +35,7 @@ namespace letiahomes.Infrastructure.RepsitoryManager
         public IPropertyImageRepository PropertyImage =>
             _propertyImageRepository ??= new PropertyImageRepository(_dbContext);
         public IPropertyAmenityRepository PropertyAmenity =>
-            _propertyAmenityRepository ?? new PropertyAmenityRepository(_dbContext);
+            _propertyAmenityRepository ??= new PropertyAmenityRepository(_dbContext);
         public async Task SaveChangesAsync(
             CancellationToken cancellationToken = default)
         {

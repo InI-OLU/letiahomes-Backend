@@ -20,7 +20,7 @@ namespace letiahomes.Domain.Entities
         public int MaxGuests { get; set; }
         public int Bedrooms { get; set; }
         public int Bathrooms { get; set; }
-        public bool IsAvailable { get; set; } = true;
+        public bool IsAvailable { get; set; } = false;
         public bool IsApproved { get; set; } = false;  // admin approves listing
         public Guid LandlordProfileId { get; set; }
         public PropertyType PropertyType { get; set; }      

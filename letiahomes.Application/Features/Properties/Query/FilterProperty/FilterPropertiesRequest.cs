@@ -8,7 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace letiahomes.Application.Features.Properties.Query.GetAllProperty
+namespace letiahomes.Application.Features.Properties.Query.FilterProperty
 {
-    public sealed record GetAllPropertiesRequest(RequestParameters Parameters) : IRequest<ApiResult<PagedList<PropertyResponse>>>;
+    public sealed record FilterPropertiesRequest(PropertyFilterRequest request):IRequest<ApiResult<PagedList<PropertyResponse>>>;
+    
 }

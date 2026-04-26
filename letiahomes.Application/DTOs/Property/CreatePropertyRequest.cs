@@ -18,5 +18,7 @@ namespace letiahomes.Application.DTOs.Property
             public int Bedrooms { get; set; }
             public int Bathrooms { get; set; }
             public PropertyType PropertyType { get; set; }
+            public ListingType ListingType { get; set; }
+            public long PricePerNightKobo { get; set; }
     }
 }

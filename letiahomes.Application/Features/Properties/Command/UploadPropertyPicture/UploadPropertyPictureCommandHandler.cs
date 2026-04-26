@@ -105,6 +105,7 @@ namespace letiahomes.Application.Features.Properties.Command.UploadPropertyPictu
                 {
                     ImageUrl = result.Value.Url,
                     PropertyId = request.request.PropertyId,
+                    PublicId = result.Value.PublicId,
                     IsCoverImage = !hasCoverImage && index == 0
                 }).ToList();
 

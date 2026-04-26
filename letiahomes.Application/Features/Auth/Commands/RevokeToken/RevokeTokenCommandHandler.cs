@@ -45,16 +45,21 @@ public sealed class RevokeTokenCommandHandler
         }
 
 
-        var user = await _userManager.FindByIdAsync(token.UserId);
+        var user = await _userManager.FindByIdAsync(request.UserId);
 
         if (user == null)
         {
             return ApiResult<string>.Failure(
                 new CustomError("404", "User not found"));
         }
-        var tokens = await _repositoryManager.RefreshTokens.GetAllRefreshTokens(user.Id, cancellationToken); 
+        var tokens = await _repositoryManager.RefreshTokens
+      .GetAllRefreshTokens(request.UserId, cancellationToken);
 
-       foreach (var t in tokens)
+        if (!tokens.Any())
+            return ApiResult<string>.Failure(
+                new CustomError("404", "No active tokens found."));
+
+        foreach (var t in tokens)
         {
             t.IsRevoked = true;
         }

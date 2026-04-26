@@ -10,7 +10,8 @@ namespace letiahomes.Domain.Entities
     public class PropertyImage:AuditableEntity
     {
         public Guid PropertyId { get; set; }
-        public string ImageUrl { get; set; }  // store in Cloudinary
+        public string ImageUrl { get; set; } = string.Empty;
+        public string PublicId { get; set; } = string.Empty;
         public bool IsCoverImage { get; set; } = false;
         public Property Property { get; set; }
     }
