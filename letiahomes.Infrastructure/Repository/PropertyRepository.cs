@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -47,17 +48,8 @@ namespace letiahomes.Infrastructure.Repository
                          .OrderBy(x => x.Title)
                           .ThenByDescending(x => x.CreatedAt);
             return await PagedList<Property>.ToPagedList(query, request.pageNumber, request.pageSize);
-
-
-
-
-
-
-
-
-
-
-
         }
+        
+       
     }
 }

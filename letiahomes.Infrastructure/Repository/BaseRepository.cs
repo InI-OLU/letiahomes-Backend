@@ -2,6 +2,7 @@
 using letiahomes.Domain.Common;
 using letiahomes.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Linq.Expressions;
 
 namespace letiahomes.Infrastructure.Repository
@@ -26,6 +27,15 @@ namespace letiahomes.Infrastructure.Repository
         public async Task<T?> GetByIdAsync(Guid id)
         {
             return await _dbSet.FindAsync(id);
+        }
+        public void Attach (T entity)
+        {
+            _dbSet.Attach(entity);
+        }
+
+        public EntityEntry<T> Entry(T entity)
+        {
+            return _dbContext.Entry(entity);
         }
         public async Task AddAsync(T entity)
         {

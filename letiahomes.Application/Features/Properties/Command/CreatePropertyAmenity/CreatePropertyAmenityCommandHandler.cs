@@ -55,7 +55,7 @@ namespace letiahomes.Application.Features.Properties.Command.CreatePropertyAmeni
                 Name = request.request.Name
             };
             await _repositoryManager.PropertyAmenity.AddAsync(PropertyAmenity);
-            await _repositoryManager.SaveChangesAsync();
+            await _repositoryManager.SaveChangesAsync(cancellationToken);
             return ApiResult<string>.Success("Property Amenity has been successfully added");
 
             

@@ -9,6 +9,6 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.Features.Properties.Command.UpdateProperty
 {
-   public sealed record UpdatePropertyCommand(UpdatePropertyRequest request):IRequest<ApiResult<PropertyResponse>>;
+   public sealed record UpdatePropertyCommand(UpdatePropertyRequest request,string userId):IRequest<ApiResult<PropertyResponse>>;
  
 }

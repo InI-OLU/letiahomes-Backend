@@ -8,9 +8,10 @@ namespace letiahomes.Application.DTOs.Property
 {
    public record UpdatePropertyRequest
     {
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public bool IsAvailable { get; set; }
-        public long PricePerNightKobo { get; set; }
+        public required Guid PropertyId { get; set; }
+        public string? Title { get; set; }
+        public string? Description { get; set; }
+        public bool? IsAvailable { get; set; }
+        public long? PricePerNightKobo { get; set; }
     }
 }

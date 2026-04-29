@@ -39,6 +39,8 @@ namespace letiahomes.Application.Features.Properties.Command.CreateProperty
 
             RuleFor(x => x.request.PropertyType)
                 .IsInEnum().WithMessage("Invalid property type");
+            RuleFor(x => x.request.PricePerNightKobo)
+                .GreaterThan(0);
         }
     }
 }
