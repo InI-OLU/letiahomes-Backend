@@ -126,7 +126,7 @@ namespace letiahomes.API.Controllers
             return Ok(result);
         }
 
-        [Authorize(Roles = "Admin,Landlord,Tenant")]
+       // [Authorize(Roles = "Admin,Landlord,Tenant")]
         [HttpGet("filter-properties")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

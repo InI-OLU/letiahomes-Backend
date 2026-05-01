@@ -29,15 +29,15 @@ namespace letiahomes.Infrastructure.Repository
         {
             var query = _dbContext.Properties.AsQueryable();
             query = query.Where(x => x.IsApproved != false && x.IsAvailable != false);
-            if (request.Bathrooms != null)
+            if (request.Bathrooms.HasValue)
                 query = query.Where(x => x.Bathrooms == request.Bathrooms);
-            if (request.Bedrooms != null)
+            if (request.Bedrooms.HasValue)
                 query = query.Where(x => x.Bedrooms == request.Bedrooms);
-            if (string.IsNullOrEmpty(request.Title))
+            if (!string.IsNullOrEmpty(request.Title))
                 query = query.Where(x => x.Title == request.Title);
-            if (string.IsNullOrEmpty(request.State))
+            if (!string.IsNullOrEmpty(request.State))
                 query = query.Where(x => x.State == request.State);
-            if (request.PricePerNightKobo == request.PricePerNightKobo)
+            if (request.PricePerNightKobo.HasValue)
                 query = query.Where(x => x.PricePerNightKobo <= request.PricePerNightKobo);
             if (request.PropertyType != default)
                 query = query.Where(x => x.PropertyType == request.PropertyType);
