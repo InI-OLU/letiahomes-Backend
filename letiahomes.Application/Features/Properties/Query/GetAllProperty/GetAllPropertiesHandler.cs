@@ -4,11 +4,7 @@ using letiahomes.Application.DTOs.Property;
 using letiahomes.Application.RequestFeatures;
 using letiahomes.Domain.Entities;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace letiahomes.Application.Features.Properties.Query.GetAllProperty
 {
@@ -37,7 +33,9 @@ namespace letiahomes.Application.Features.Properties.Query.GetAllProperty
                     Bathrooms = property.Bathrooms,
                     PropertyType = property.PropertyType,
                     ListingType = property.ListingType,
-                    IsAvailable = property.IsAvailable          
+                    IsAvailable = property.IsAvailable,
+                    UnavailableDates = property.UnavailableDates,
+                    Images = property.Images
                 }).ToList();
 
             var PagedResult = new PagedList<PropertyResponse>(

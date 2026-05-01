@@ -9,15 +9,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace letiahomes.Application.Features.Properties.Query.FilterProperty
+namespace letiahomes.Application.Features.Properties.Query.GetFeaturedProperty
 {
-    public class FilterPropertiesHandler(IRepositoryManager repositoryManager) : IRequestHandler<FilterPropertiesRequest, ApiResult<PagedList<PropertyResponse>>>
+    public class GetFeaturedPropertyHandler(IRepositoryManager repositoryManager) : IRequestHandler<GetFeaturedPropertyRequest, ApiResult<PagedList<PropertyResponse>>>
     {
         private readonly IRepositoryManager _repositoryManager = repositoryManager;
 
-        public async Task<ApiResult<PagedList<PropertyResponse>>> Handle(FilterPropertiesRequest request, CancellationToken cancellationToken)
+        public async Task<ApiResult<PagedList<PropertyResponse>>> Handle(GetFeaturedPropertyRequest request, CancellationToken cancellationToken)
         {
-            var response = await _repositoryManager.Properties.FilterBy(request.request);
+            var response = await _repositoryManager.Properties.GetFeaturedProperty(request.request);
             if (!response.Any())
                 return ApiResult<PagedList<PropertyResponse>>.Failure(new CustomError("404", "Properties not found"));
             var PropertyResult = response.Select(property => new PropertyResponse
@@ -47,7 +47,7 @@ namespace letiahomes.Application.Features.Properties.Query.FilterProperty
              );
 
             return ApiResult<PagedList<PropertyResponse>>.Success(PagedResult);
-      
+            
         }
     }
 }

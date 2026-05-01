@@ -3,6 +3,7 @@ using letiahomes.Application.Common;
 using letiahomes.Application.RequestFeatures;
 using letiahomes.Domain.Entities;
 using letiahomes.Infrastructure.Data;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -47,9 +48,18 @@ namespace letiahomes.Infrastructure.Repository
             query = query.AsNoTracking()
                          .OrderBy(x => x.Title)
                           .ThenByDescending(x => x.CreatedAt);
+            System.Diagnostics.Debug.WriteLine(query.ToQueryString());
             return await PagedList<Property>.ToPagedList(query, request.pageNumber, request.pageSize);
         }
-        
+        public async Task<PagedList<Property>> GetFeaturedProperty( RequestParameters parameters)
+        {
+           var query = _dbContext.Properties.AsQueryable();
+            query = query.Where(x => x.IsAvailable == true && x.IsApproved == true)
+                         .OrderByDescending(x => x.CreatedAt)
+                         .Take(5)
+                         .AsNoTracking();
+            return await PagedList<Property>.ToPagedList(query, parameters.pageNumber, parameters.pageSize);
+        }
        
     }
 }

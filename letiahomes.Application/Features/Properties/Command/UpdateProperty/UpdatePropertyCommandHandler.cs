@@ -62,6 +62,7 @@ namespace letiahomes.Application.Features.Properties.Command.UpdateProperty
                 // Reset approval on price change
                 property.IsApproved = false;
                 entry.Property(x => x.IsApproved).IsModified = true;
+                //Notify Admin (adminDashboard) of priceChange for review.
             }
 
             property.UpdatedAt = DateTime.UtcNow;

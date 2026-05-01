@@ -26,11 +26,11 @@ namespace letiahomes.Application.Features.Properties.Command.CreateProperty
 
         public async Task<ApiResult<string>> Handle(CreatePropertyCommand request, CancellationToken cancellationToken)
         {
-            var landlord = await _repositoryManager.Landlords.FindAll(x => x.AppUserId == request.userId,false)
+            var landlord = await _repositoryManager.Landlords.FindAll(x => x.AppUserId == request.userId && x.IsVerified == true,false)
                                                               .FirstOrDefaultAsync();
             if (landlord == null)
             {
-                return ApiResult<string>.Failure(new CustomError("404", "User not found"));
+                return ApiResult<string>.Failure(new CustomError("404", "User not found or IsNotVerified"));
             }
             
             var Property = new Property
@@ -54,6 +54,9 @@ namespace letiahomes.Application.Features.Properties.Command.CreateProperty
             };
               await _repositoryManager.Properties.AddAsync(Property);
             await _repositoryManager.SaveChangesAsync();
+            //There should be a property Created count for admin to be able to track how many property are beind listed per time 
+            //send an email using EmailService to The landlord confirming propertyCreation 
+            //send a notification to the admin (adminDashboard) of a new propertyListing
 
             return ApiResult<string>.Success(
     $"Property {Property.Id} has been created successfully");

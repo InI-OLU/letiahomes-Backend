@@ -35,6 +35,7 @@ namespace letiahomes.Application.Features.Properties.Command.DeleteProperty
                                      request.PropertyId,
                                      request.userId
                                  );
+            //There should be a deleted count for admin to be able to track how many users pulled their properties off the platform 
 
             return ApiResult<string>.Success("Property successfully deleted");
         }
