@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace letiahomes.Application.RequestFeatures
 {
@@ -25,6 +27,7 @@ namespace letiahomes.Application.RequestFeatures
         pageSize)
         {
             var count = await source.CountAsync();
+          
             var items =await source
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize).ToListAsync();

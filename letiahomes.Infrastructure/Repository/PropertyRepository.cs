@@ -1,5 +1,6 @@
 ﻿using letiahomes.Application.Abstractions.IRepository;
 using letiahomes.Application.Common;
+using letiahomes.Application.DTOs.Property;
 using letiahomes.Application.RequestFeatures;
 using letiahomes.Domain.Entities;
 using letiahomes.Infrastructure.Data;
@@ -18,12 +19,14 @@ namespace letiahomes.Infrastructure.Repository
     {
         private readonly ApplicationDbContext _dbContext = context;
 
-       public async Task<PagedList<Property>> GetAllProperties(RequestParameters parameters)
+        public async Task<PagedList<Property>> GetAllProperties(RequestParameters parameters)
         {
-            var query =  _dbContext.Properties.AsQueryable();
+            var query = _dbContext.Properties.AsQueryable();
             query = query.Where(x => x.IsApproved != false && x.IsAvailable != false)
+                         .Include(x => x.Images)
+                         .Include(x => x.UnavailableDates)
                          .AsNoTracking();
-            return await PagedList<Property>.ToPagedList(query,parameters.pageNumber,parameters.pageSize);
+            return await PagedList<Property>.ToPagedList(query, parameters.pageNumber, parameters.pageSize);
         }
         public async Task<PagedList<Property>> FilterBy(PropertyFilterRequest request)
         {
@@ -41,24 +44,46 @@ namespace letiahomes.Infrastructure.Repository
                 query = query.Where(x => x.PricePerNightKobo <= request.PricePerNightKobo);
             if (request.PropertyType != default)
                 query = query.Where(x => x.PropertyType == request.PropertyType);
-            if (request.ValidDateRange)
-                query = query.Where(x => x.CreatedAt >= request.StartDate && x.CreatedAt <= request.EndDate);
-            if (!string.IsNullOrWhiteSpace(request.SearchBy))
-                query = query.Where(x => x.Title.Contains(request.SearchBy) || x.Address.Contains(request.SearchBy));
             query = query.AsNoTracking()
                          .OrderBy(x => x.Title)
                           .ThenByDescending(x => x.CreatedAt);
-            System.Diagnostics.Debug.WriteLine(query.ToQueryString());
+          //  System.Diagnostics.Debug.WriteLine(query.ToQueryString());
             return await PagedList<Property>.ToPagedList(query, request.pageNumber, request.pageSize);
         }
-        public async Task<PagedList<Property>> GetFeaturedProperty( RequestParameters parameters)
+        public async Task<PagedList<Property>> GetFeaturedProperty(RequestParameters parameters)
         {
-           var query = _dbContext.Properties.AsQueryable();
+            var query = _dbContext.Properties.AsQueryable();
             query = query.Where(x => x.IsAvailable == true && x.IsApproved == true)
                          .OrderByDescending(x => x.CreatedAt)
                          .Take(5)
                          .AsNoTracking();
             return await PagedList<Property>.ToPagedList(query, parameters.pageNumber, parameters.pageSize);
+        }
+        public async Task<PropertyResponse?> GetPropertyWithAmenityAndImage(Guid PropertyId)
+        {
+            var result = await _dbContext.Properties.AsQueryable()
+                                                    .Where(x => x.Id == PropertyId)
+                                                    .Select(property => new PropertyResponse
+                                                    {
+                                                        Id = property.Id,
+                                                        Title = property.Title,
+                                                        State = property.State,
+                                                        City = property.City,
+                                                        Description = property.Description,
+                                                        Address = property.Address,
+                                                        PricePerNightKobo = property.PricePerNightKobo,
+                                                        MaxGuests = property.MaxGuests,
+                                                        Bedrooms = property.Bedrooms,
+                                                        Bathrooms = property.Bathrooms,
+                                                        PropertyType = property.PropertyType,
+                                                        ListingType = property.ListingType,
+                                                        IsAvailable = property.IsAvailable,
+                                                        IsApproved = property.IsApproved,
+                                                        UnavailableDates = property.UnavailableDates,
+                                                        Images = property.Images
+                                                    }).FirstOrDefaultAsync();
+            return  result;
+
         }
        
     }

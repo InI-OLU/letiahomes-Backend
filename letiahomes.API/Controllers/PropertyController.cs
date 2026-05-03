@@ -2,6 +2,7 @@
 using letiahomes.Application.Features.Properties.Command.CreateProperty;
 using letiahomes.Application.Features.Properties.Command.CreatePropertyAmenity;
 using letiahomes.Application.Features.Properties.Command.DeleteProperty;
+using letiahomes.Application.Features.Properties.Command.SubmitPropertyForReview;
 using letiahomes.Application.Features.Properties.Command.UpdateProperty;
 using letiahomes.Application.Features.Properties.Command.UploadPropertyPicture;
 using letiahomes.Application.Features.Properties.Query.FilterProperty;
@@ -58,6 +59,17 @@ namespace letiahomes.API.Controllers
             return Ok(result);
         }
 
+        [HttpPost("{propertyId}/submit-for-review")]
+        [Authorize(Roles = "Landlord")]
+        public async Task<IActionResult> SubmitForReview(
+    Guid propertyId, CancellationToken cancellationToken)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _mediator.Send(
+                new PropertyReviewCommand(propertyId, userId!), cancellationToken);
+
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
 
         [Authorize(Roles = "Admin,Landlord")]
         [HttpPost("update-property")]
@@ -126,7 +138,7 @@ namespace letiahomes.API.Controllers
             return Ok(result);
         }
 
-       // [Authorize(Roles = "Admin,Landlord,Tenant")]
+       //[Authorize(Roles = "Admin,Landlord,Tenant")]
         [HttpGet("filter-properties")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

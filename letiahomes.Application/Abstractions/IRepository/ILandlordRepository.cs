@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.Abstractions.IRepository
 {
-    public interface ILandlordRepository:IBaseRepository<LandlordProfile>
+    public interface ILandlordRepository : IBaseRepository<LandlordProfile>
     {
+        Task<LandlordProfile?> GetLandlord(string UserId);
     }
 }

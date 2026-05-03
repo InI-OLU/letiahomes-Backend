@@ -1,4 +1,5 @@
-﻿using letiahomes.Application.RequestFeatures;
+﻿using letiahomes.Application.DTOs.Property;
+using letiahomes.Application.RequestFeatures;
 using letiahomes.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -13,5 +14,6 @@ namespace letiahomes.Application.Abstractions.IRepository
         Task<PagedList<Property>> FilterBy(PropertyFilterRequest request);
         Task<PagedList<Property>> GetAllProperties(RequestParameters parameters);
         Task<PagedList<Property>> GetFeaturedProperty(RequestParameters parameters);
+        Task<PropertyResponse?> GetPropertyWithAmenityAndImage(Guid PropertyId);
     }
 }

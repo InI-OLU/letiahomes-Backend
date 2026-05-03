@@ -17,7 +17,6 @@
   <ItemGroup>
     <Folder Include="Features\AdminDashboard\" />
     <Folder Include="Features\Properties\Command\ApproveProperty\" />
-    <Folder Include="Features\Properties\Command\SubmitPropertyForReview\" />
   </ItemGroup>
 
   <PropertyGroup>

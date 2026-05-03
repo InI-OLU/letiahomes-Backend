@@ -22,9 +22,6 @@ namespace letiahomes.Application.RequestFeatures
                _pageSize =  value > maxPageSize ? maxPageSize : value;
             }
         }
-        public string SearchBy { get; set; } = string.Empty;
-        public DateTime StartDate { get; set; } = DateTime.MinValue;
-        public DateTime EndDate { get; set; } = DateTime.MaxValue;
-        public bool ValidDateRange => EndDate > StartDate ;
+      
     }
 }
