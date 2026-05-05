@@ -24,7 +24,6 @@ namespace letiahomes.Application.DTOs.Property
         public ListingType ListingType { get; init; }
         public bool IsAvailable { get; init; }
         public bool IsApproved { get; init; }
-        public string? CoverImageUrl { get; init; }
         public ICollection<UnavailableDate> UnavailableDates { get; set; }
         public ICollection<PropertyImage> Images { get; set; }
     }

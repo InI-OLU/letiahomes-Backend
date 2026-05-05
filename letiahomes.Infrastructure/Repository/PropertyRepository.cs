@@ -26,6 +26,7 @@ namespace letiahomes.Infrastructure.Repository
                          .Include(x => x.Images)
                          .Include(x => x.UnavailableDates)
                          .AsNoTracking();
+            System.Diagnostics.Debug.WriteLine(query.ToQueryString());
             return await PagedList<Property>.ToPagedList(query, parameters.pageNumber, parameters.pageSize);
         }
         public async Task<PagedList<Property>> FilterBy(PropertyFilterRequest request)
