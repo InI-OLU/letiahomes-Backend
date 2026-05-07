@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.DTOs.Property
 {
-    public sealed record CreatePropertyAmenityRequest
-    {
-
-        public required string Name { get; init; }  // WiFi, Pool, AC, Generator etc
-    }
+   public record PropertyImageResponse
+    (  string ImageUrl,
+         string PublicId,
+         bool IsCoverImage );
+       
+    
 }

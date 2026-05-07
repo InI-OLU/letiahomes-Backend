@@ -10,5 +10,5 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.Features.Properties.Query.GetAllProperty
 {
-    public sealed record GetAllPropertiesRequest(RequestParameters Parameters) : IRequest<ApiResult<PagedList<PropertyResponse>>>;
+    public sealed record GetAllPropertiesRequest(PropertyFilterRequest Parameters) : IRequest<ApiResult<PagedList<PropertyResponse>>>;
 }

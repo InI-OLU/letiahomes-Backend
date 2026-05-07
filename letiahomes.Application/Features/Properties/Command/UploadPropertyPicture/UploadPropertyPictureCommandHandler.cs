@@ -28,7 +28,7 @@ namespace letiahomes.Application.Features.Properties.Command.UploadPropertyPictu
         {
             // 1. Check property exists
             var property = await _repositoryManager.Properties
-                .FindAll(x => x.Id == request.request.PropertyId, false)
+                .FindAll(x => x.Id == request.PropertyId, false)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (property is null)
@@ -36,7 +36,7 @@ namespace letiahomes.Application.Features.Properties.Command.UploadPropertyPictu
 
             // 2. Check max image limit
             var existingCount = await _repositoryManager.PropertyImage
-                .FindAll(x => x.PropertyId == request.request.PropertyId, false)
+                .FindAll(x => x.PropertyId == request.PropertyId, false)
                 .CountAsync(cancellationToken);
 
             if (existingCount + request.request.PictureFiles.Count > 5)
@@ -95,7 +95,7 @@ namespace letiahomes.Application.Features.Properties.Command.UploadPropertyPictu
 
             // 7. Check if property already has a cover image
             var hasCoverImage = await _repositoryManager.PropertyImage
-                .FindAll(x => x.PropertyId == request.request.PropertyId
+                .FindAll(x => x.PropertyId == request.PropertyId
                            && x.IsCoverImage, false)
                 .AnyAsync(cancellationToken);
 
@@ -104,7 +104,7 @@ namespace letiahomes.Application.Features.Properties.Command.UploadPropertyPictu
                 .Select((result, index) => new PropertyImage
                 {
                     ImageUrl = result.Value.Url,
-                    PropertyId = request.request.PropertyId,
+                    PropertyId = request.PropertyId,
                     PublicId = result.Value.PublicId,
                     IsCoverImage = !hasCoverImage && index == 0
                 }).ToList();

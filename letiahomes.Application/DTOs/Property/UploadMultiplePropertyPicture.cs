@@ -9,7 +9,6 @@ namespace letiahomes.Application.DTOs.Property
 {
     public class UploadMultiplePropertyPicture
     {
-        public required Guid PropertyId { get; set; }
         public required List<IFormFile> PictureFiles { get; set; }
     }
 

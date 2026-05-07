@@ -19,7 +19,7 @@ namespace letiahomes.Application.Features.Properties.Query.GetAllProperty
                 return  ApiResult<PagedList<PropertyResponse>>.Failure(new CustomError("404", "Properties not found"));
 
 
-           var PropertyResult =  response.Select(property =>new PropertyResponse
+          /* var PropertyResult =  response.Select(property =>new PropertyResponse
                 {
                     Id = property.Id,
                     Title = property.Title,
@@ -36,10 +36,10 @@ namespace letiahomes.Application.Features.Properties.Query.GetAllProperty
                     IsAvailable = property.IsAvailable,
                     UnavailableDates = property.UnavailableDates,
                     Images = property.Images
-                }).ToList();
+                }).ToList();*/
 
             var PagedResult = new PagedList<PropertyResponse>(
-                 PropertyResult,
+                 response,
                  response.MetaData.TotalCount,
                  response.MetaData.CurrentPage,
                  response.MetaData.PageSize

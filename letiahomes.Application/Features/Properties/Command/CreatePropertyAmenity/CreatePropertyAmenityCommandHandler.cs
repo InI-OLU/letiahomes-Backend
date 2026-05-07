@@ -29,7 +29,7 @@ namespace letiahomes.Application.Features.Properties.Command.CreatePropertyAmeni
 
             var landlord = await _repositoryManager.Landlords.FindAll(x => x.AppUserId == request.userId,false)
                                                              .FirstOrDefaultAsync(cancellationToken);
-            var Property = await _repositoryManager.Properties.FindAll(x => x.Id == request.request.PropertyId,false)
+            var Property = await _repositoryManager.Properties.FindAll(x => x.Id == request.PropertyId,false)
                                                              .FirstOrDefaultAsync(cancellationToken);
             if (Property == null)
             {
@@ -44,7 +44,7 @@ namespace letiahomes.Application.Features.Properties.Command.CreatePropertyAmeni
                 return ApiResult<string>.Failure(new CustomError("403", "You are not authorized to perform this action"));
             }
 
-            var exists = await _repositoryManager.PropertyAmenity.FindAll(x => x.PropertyId == request.request.PropertyId &&
+            var exists = await _repositoryManager.PropertyAmenity.FindAll(x => x.PropertyId == request.PropertyId &&
                                                                            x.Name.ToLower() == request.request.Name.ToLower(), false)
                                                                            .AnyAsync(cancellationToken);
             if (exists)

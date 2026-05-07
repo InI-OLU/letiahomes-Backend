@@ -18,7 +18,7 @@ using System.Text.Json;
 
 namespace letiahomes.API.Controllers
 {
-    [Route("api/property")]
+    [Route("api/properties")]
     [ApiController]
     public class PropertyController : ControllerBase
     {
@@ -29,33 +29,35 @@ namespace letiahomes.API.Controllers
             _mediator = mediator;
         }
         [Authorize(Roles = "Admin,Landlord")]
-        [HttpPost("create-property")]
+        [HttpPost]
         public async Task<IActionResult> CreateProperty([FromBody] CreatePropertyRequest request,
                                                               CancellationToken cancellationToken)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var result = await _mediator.Send(
-        new CreatePropertyCommand(request,userId), cancellationToken);
+        new CreatePropertyCommand(request, userId), cancellationToken);
             return Ok(result);
         }
         [Authorize(Roles = "Admin,Landlord")]
-        [HttpPost("upload-property-image")]
+        [HttpPost("{Id}upload")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> UploadPropertyImage([FromForm] UploadMultiplePropertyPicture uploadRequest,
+                                                             [FromQuery] Guid Id,
                                                                CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(
-        new UploadPropertyPictureCommand(uploadRequest), cancellationToken);
+        new UploadPropertyPictureCommand(uploadRequest, Id), cancellationToken);
             return result.IsSuccess ? Ok(result) : Conflict(result);
         }
 
         [Authorize(Roles = "Admin,Landlord")]
-        [HttpPost("create-property-amenities")]
+        [HttpPost("{Id}amenities")]
         public async Task<IActionResult> CreatePropertyAmenity([FromBody] CreatePropertyAmenityRequest propertyAmenityRequest,
+                                                                [FromQuery] Guid PropertyId,
                                                                 CancellationToken cancellationToken)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await _mediator.Send(new CreatePropertyAmenityCommand(propertyAmenityRequest,userId),cancellationToken);
+            var result = await _mediator.Send(new CreatePropertyAmenityCommand(propertyAmenityRequest, userId, PropertyId), cancellationToken);
             return Ok(result);
         }
 
@@ -72,31 +74,32 @@ namespace letiahomes.API.Controllers
         }
 
         [Authorize(Roles = "Admin,Landlord")]
-        [HttpPost("update-property")]
+        [HttpPatch("{Id}")]
         public async Task<IActionResult> UpdateProperty([FromBody] UpdatePropertyRequest updateRequest,
+                                                              [FromQuery] Guid PropertyId,
                                                               CancellationToken cancellationToken)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await _mediator.Send(new UpdatePropertyCommand(updateRequest, userId), cancellationToken);
+            var result = await _mediator.Send(new UpdatePropertyCommand(updateRequest, userId, PropertyId), cancellationToken);
             return Ok(result);
         }
 
         [Authorize(Roles = "Admin,Landlord")]
-        [HttpPost("delete-property")]
-        public async Task<IActionResult> DeleteProperty([FromBody] Guid PropertyId,
+        [HttpDelete("{Id}")]
+        public async Task<IActionResult> DeleteProperty([FromQuery] Guid Id,
                                                              CancellationToken cancellationToken)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await _mediator.Send(new DeletePropertyCommand(PropertyId, userId), cancellationToken);
+            var result = await _mediator.Send(new DeletePropertyCommand(Id, userId), cancellationToken);
             return Ok(result);
         }
 
-        [HttpGet("properties")]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetAllProperties([FromQuery] RequestParameters parameters, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAllProperties([FromQuery] PropertyFilterRequest parameters, CancellationToken cancellationToken)
         {
-            var result = await _mediator.Send(new GetAllPropertiesRequest ( parameters ),cancellationToken);
+            var result = await _mediator.Send(new GetAllPropertiesRequest(parameters), cancellationToken);
 
             if (!result.IsSuccess)
                 return NotFound(result.Error);
@@ -107,7 +110,7 @@ namespace letiahomes.API.Controllers
         }
 
         [Authorize(Roles = "Admin,Landlord,Tenant")]
-        [HttpGet("property{id}")]
+        [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetPropertyById(Guid id, CancellationToken cancellationToken)
@@ -121,8 +124,8 @@ namespace letiahomes.API.Controllers
             return Ok(result);
         }
 
-   
-        [HttpGet("featured-property")]
+
+        [HttpGet("featured")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetFeaturedProperties([FromQuery] RequestParameters parameters, CancellationToken cancellationToken)
@@ -138,21 +141,21 @@ namespace letiahomes.API.Controllers
             return Ok(result);
         }
 
-       //[Authorize(Roles = "Admin,Landlord,Tenant")]
-        [HttpGet("filter-properties")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> FilterProperties([FromQuery] PropertyFilterRequest parameters, CancellationToken cancellationToken)
-        {
-            var result = await _mediator.Send(new FilterPropertiesRequest(parameters), cancellationToken);
+        /*[Authorize(Roles = "Admin,Landlord,Tenant")]
+         [HttpGet("filter-properties")]
+         [ProducesResponseType(StatusCodes.Status200OK)]
+         [ProducesResponseType(StatusCodes.Status404NotFound)]
+         public async Task<IActionResult> FilterProperties([FromQuery] PropertyFilterRequest parameters, CancellationToken cancellationToken)
+         {
+             var result = await _mediator.Send(new FilterPropertiesRequest(parameters), cancellationToken);
 
-            if (!result.IsSuccess)
-                return NotFound(result.Error);
+             if (!result.IsSuccess)
+                 return NotFound(result.Error);
 
-            Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(result.Value.MetaData));
+             Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(result.Value.MetaData));
 
-            return Ok(result);
-        }
+             return Ok(result);
+         }*/
 
     }
 }

@@ -35,8 +35,18 @@ namespace letiahomes.Application.Features.Properties.Query.GetFeaturedProperty
                 PropertyType = property.PropertyType,
                 ListingType = property.ListingType,
                 IsAvailable = property.IsAvailable,
-                UnavailableDates = property.UnavailableDates,
                 Images = property.Images
+                        .Select(img => new PropertyImageResponse
+                        (
+                           img.ImageUrl,
+                            img.PublicId,
+                            img.IsCoverImage
+                        )).ToList(),
+                UnavailableDates = property.UnavailableDates
+                        .Select(date => new UnavailableDateResponse
+                        (
+                            date.Date
+                        )).ToList()
             }).ToList();
 
             var PagedResult = new PagedList<PropertyResponse>(

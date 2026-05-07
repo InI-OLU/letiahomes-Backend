@@ -21,11 +21,11 @@ namespace letiahomes.Application.Features.Properties.Command.UpdateProperty
         public async Task<ApiResult<PropertyResponse>> Handle(UpdatePropertyCommand request, CancellationToken cancellationToken)
         {
             var propertyExists =  _repositoryManager.Properties
-                                                            .FindAll(x => x.Id == request.request.PropertyId && x.Landlord.AppUserId == request.userId , true)
+                                                            .FindAll(x => x.Id == request.PropertyId && x.Landlord.AppUserId == request.userId , true)
                                                             .FirstOrDefaultAsync(cancellationToken);
             var property = new Property
             {
-                Id = request.request.PropertyId
+                Id = request.PropertyId
             };
             _repositoryManager.Properties.Attach(property);
 

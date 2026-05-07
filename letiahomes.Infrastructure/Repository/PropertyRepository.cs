@@ -6,12 +6,6 @@ using letiahomes.Domain.Entities;
 using letiahomes.Infrastructure.Data;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace letiahomes.Infrastructure.Repository
 {
@@ -19,15 +13,44 @@ namespace letiahomes.Infrastructure.Repository
     {
         private readonly ApplicationDbContext _dbContext = context;
 
-        public async Task<PagedList<Property>> GetAllProperties(RequestParameters parameters)
+        public async Task<PagedList<PropertyResponse>> GetAllProperties(RequestParameters parameters)
         {
-            var query = _dbContext.Properties.AsQueryable();
-            query = query.Where(x => x.IsApproved != false && x.IsAvailable != false)
-                         .Include(x => x.Images)
-                         .Include(x => x.UnavailableDates)
-                         .AsNoTracking();
-            System.Diagnostics.Debug.WriteLine(query.ToQueryString());
-            return await PagedList<Property>.ToPagedList(query, parameters.pageNumber, parameters.pageSize);
+            var query = _dbContext.Properties
+                .AsNoTracking()
+                .AsSplitQuery()
+                .Where(x => x.IsApproved && x.IsAvailable)
+                .OrderByDescending(x => x.CreatedAt)
+                .Select(property => new PropertyResponse
+                {
+                    Id = property.Id,
+                    Title = property.Title,
+                    Description = property.Description,
+                    Address = property.Address,
+                    City = property.City,
+                    State = property.State,
+                    PricePerNightKobo = property.PricePerNightKobo,
+                    MaxGuests = property.MaxGuests,
+                    Bedrooms = property.Bedrooms,
+                    Bathrooms = property.Bathrooms,
+                    PropertyType = property.PropertyType,
+                    ListingType = property.ListingType,
+                    IsAvailable = property.IsAvailable,
+                    IsApproved = property.IsApproved,
+                    Images = property.Images
+                        .Select(img => new PropertyImageResponse
+                        (
+                           img.ImageUrl,
+                            img.PublicId,
+                            img.IsCoverImage
+                        )).ToList(),
+                    UnavailableDates = property.UnavailableDates
+                        .Select(date => new UnavailableDateResponse
+                        (
+                            date.Date
+                        )).ToList()
+                });
+
+            return await PagedList<PropertyResponse>.ToPagedList(query, parameters.pageNumber, parameters.pageSize);
         }
         public async Task<PagedList<Property>> FilterBy(PropertyFilterRequest request)
         {
@@ -68,10 +91,10 @@ namespace letiahomes.Infrastructure.Repository
                                                     {
                                                         Id = property.Id,
                                                         Title = property.Title,
-                                                        State = property.State,
-                                                        City = property.City,
                                                         Description = property.Description,
                                                         Address = property.Address,
+                                                        City = property.City,
+                                                        State = property.State,
                                                         PricePerNightKobo = property.PricePerNightKobo,
                                                         MaxGuests = property.MaxGuests,
                                                         Bedrooms = property.Bedrooms,
@@ -80,11 +103,20 @@ namespace letiahomes.Infrastructure.Repository
                                                         ListingType = property.ListingType,
                                                         IsAvailable = property.IsAvailable,
                                                         IsApproved = property.IsApproved,
-                                                        UnavailableDates = property.UnavailableDates,
                                                         Images = property.Images
+                                                .Select(img => new PropertyImageResponse
+                                                             (
+                                                                 img.ImageUrl,
+                                                                 img.PublicId,
+                                                                img.IsCoverImage
+                                                             )).ToList(),
+                                                        UnavailableDates = property.UnavailableDates
+                                                .Select(date => new UnavailableDateResponse
+                                                            (
+                                                              date.Date
+                                                            )).ToList()
                                                     }).FirstOrDefaultAsync();
-            return  result;
-
+                                                  return  result;
         }
        
     }

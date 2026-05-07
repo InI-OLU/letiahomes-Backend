@@ -9,6 +9,6 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.Features.Properties.Command.UploadPropertyPicture
 {
-    public sealed record UploadPropertyPictureCommand(UploadMultiplePropertyPicture request):IRequest<ApiResult<string>>;
+    public sealed record UploadPropertyPictureCommand(UploadMultiplePropertyPicture request,Guid PropertyId):IRequest<ApiResult<string>>;
     
 }

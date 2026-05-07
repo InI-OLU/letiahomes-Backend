@@ -30,8 +30,18 @@ namespace letiahomes.Application.Features.Properties.Query.GetPropertyById
                 PropertyType = property.PropertyType,
                 ListingType = property.ListingType,
                 IsAvailable = property.IsAvailable,
-                UnavailableDates = property.UnavailableDates,
                 Images = property.Images
+                         .Select(img => new PropertyImageResponse
+                         (
+                            img.ImageUrl,
+                             img.PublicId,
+                             img.IsCoverImage
+                         )).ToList(),
+                UnavailableDates = property.UnavailableDates
+                         .Select(date => new UnavailableDateResponse
+                         (
+                             date.Date
+                         )).ToList()
             };
 
             return ApiResult<PropertyResponse>.Success(PropertyResult);

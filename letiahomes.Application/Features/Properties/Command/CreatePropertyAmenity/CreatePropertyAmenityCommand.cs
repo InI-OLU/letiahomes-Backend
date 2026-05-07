@@ -9,5 +9,5 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.Features.Properties.Command.CreatePropertyAmenity
 {
-    public sealed record CreatePropertyAmenityCommand(CreatePropertyAmenityRequest request, string userId):IRequest<ApiResult<string>>;
+    public sealed record CreatePropertyAmenityCommand(CreatePropertyAmenityRequest request, string userId,Guid PropertyId):IRequest<ApiResult<string>>;
 }

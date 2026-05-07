@@ -1,30 +1,23 @@
-﻿using letiahomes.Domain.Entities;
-using letiahomes.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using letiahomes.Domain.Enums;
 
-namespace letiahomes.Application.DTOs.Property
+namespace letiahomes.Application.DTOs.Property;
+
+public sealed record PropertyResponse
 {
-   public class PropertyResponse
-    {
-        public Guid Id { get; init; }
-        public  string Title { get; set; }
-        public string Description { get; set; }
-        public  string Address { get; set; }
-        public  string City { get; set; }
-        public  string State { get; set; }
-        public long PricePerNightKobo { get; set; }
-        public int MaxGuests { get; set; }
-        public int Bedrooms { get; set; }
-        public int Bathrooms { get; set; }
-        public PropertyType PropertyType { get; set; }
-        public ListingType ListingType { get; init; }
-        public bool IsAvailable { get; init; }
-        public bool IsApproved { get; init; }
-        public ICollection<UnavailableDate> UnavailableDates { get; set; }
-        public ICollection<PropertyImage> Images { get; set; }
-    }
+    public Guid Id { get; init; }
+    public string Title { get; init; } = string.Empty;
+    public string Description { get; init; } = string.Empty;
+    public string Address { get; init; } = string.Empty;
+    public string City { get; init; } = string.Empty;
+    public string State { get; init; } = string.Empty;
+    public long PricePerNightKobo { get; init; }
+    public int MaxGuests { get; init; }
+    public int Bedrooms { get; init; }
+    public int Bathrooms { get; init; }
+    public PropertyType PropertyType { get; init; }
+    public ListingType ListingType { get; init; }
+    public bool IsAvailable { get; init; }
+    public bool IsApproved { get; init; }
+    public IReadOnlyList<UnavailableDateResponse> UnavailableDates { get; init; } = [];
+    public IReadOnlyList<PropertyImageResponse> Images { get; init; } = [];
 }

@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.DTOs.Property
 {
-    public sealed record CreatePropertyAmenityRequest
-    {
+    public record UnavailableDateResponse (DateTime Date);
 
-        public required string Name { get; init; }  // WiFi, Pool, AC, Generator etc
-    }
+
+
 }
