@@ -23,6 +23,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using Hangfire;
+using Hangfire.PostgreSql;
 
 // Bootstrap logger — catches startup crashes before full config loads
 Log.Logger = new LoggerConfiguration()
@@ -130,8 +131,9 @@ try
         .UseRecommendedSerializerSettings()
         .UsePostgreSqlStorage(config.GetConnectionString("DefaultConnection"));
     });
-    
-  //MailJet configuratiion
+    builder.Services.AddHangfireServer();
+
+    //MailJet configuratiion
     var mailJetSection = config.GetSection("MailJet");
     builder.Services.Configure<MailjetSettings>(mailJetSection);
     var mailJetSettings = mailJetSection.Get<MailjetSettings>() ??
@@ -165,6 +167,8 @@ try
     builder.Services.AddScoped<IEmailService, EmailService>();
     builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
     builder.Services.AddScoped<ITokenExtension, TokenExtension>();
+    builder.Services.AddScoped<INotificationService, NotificationService>();
+    builder.Services.AddScoped<NotificationJobService>();
 
 
 
@@ -227,7 +231,7 @@ try
     app.UseSerilogRequestLogging();
     app.UseAuthentication();
     app.UseAuthorization();
-    app.UseHangFireDashboard();
+    app.UseHangfireDashboard();
     app.MapControllers();
 
     app.Run();

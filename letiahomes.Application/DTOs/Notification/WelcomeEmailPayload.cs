@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace letiahomes.Application.DTOs.Notification
+﻿namespace letiahomes.Application.DTOs.Notification
 {
-    internal class WelcomeEmailPayload
-    {
-    }
+    public sealed record WelcomeEmailPayload(
+    string Recipient,
+    string Subject,
+    string Message);
 }

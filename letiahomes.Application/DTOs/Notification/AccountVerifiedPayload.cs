@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace letiahomes.Application.DTOs.Notification
+﻿namespace letiahomes.Application.DTOs.Notification
 {
-    internal class AccountVerifiedPayload
-    {
-    }
+    public sealed record AccountVerifiedPayload(string Recipient,
+    string FirstName,
+    string LoginLink);
 }

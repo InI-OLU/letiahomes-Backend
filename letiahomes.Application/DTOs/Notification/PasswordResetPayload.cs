@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
 namespace letiahomes.Application.DTOs.Notification
 {
-    internal class PasswordResetPayload
-    {
-    }
+    public sealed record PasswordResetPayload(string Recipient, string FirstName, string ResetLink);
 }
