@@ -6,7 +6,15 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.Common.Exceptions
 {
-    internal class TemporaryException
+    public sealed class TemporaryException:Exception
     {
+        public TemporaryException(string message) : base(message)
+        {
+
+        }
+        public TemporaryException(string message,Exception innerException) : base(message,innerException)
+        {
+
+        }
     }
 }

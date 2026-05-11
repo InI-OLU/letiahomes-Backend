@@ -6,7 +6,16 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.Common.Exceptions
 {
-    internal class PermanentException
+    public sealed class PermanentException:Exception
     {
+        public PermanentException(string message) : base(message)
+        {
+
+        }
+        
+        public PermanentException(string message,Exception innerException):base(message , innerException)
+        {
+
+        }
     }
 }
