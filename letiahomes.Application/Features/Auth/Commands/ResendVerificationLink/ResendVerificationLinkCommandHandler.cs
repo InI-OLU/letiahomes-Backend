@@ -1,9 +1,11 @@
 ﻿using letiahomes.Application.Abstractions.Externals;
 using letiahomes.Application.Common;
+using letiahomes.Application.DTOs.Notification;
 using letiahomes.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 
 namespace letiahomes.Application.Features.Auth.Commands.ResendVerificationLink
@@ -12,17 +14,20 @@ namespace letiahomes.Application.Features.Auth.Commands.ResendVerificationLink
      : IRequestHandler<ResendVerificationCommand, ApiResult<string>>
     {
         private readonly UserManager<AppUser> _userManager;
-        private readonly IEmailService _emailService;
+        private readonly INotificationService _notificationService;
         private readonly IConfiguration _config;
+        private readonly ILogger<ResendVerificationCommandHandler> _logger;
 
         public ResendVerificationCommandHandler(
             UserManager<AppUser> userManager,
-            IEmailService emailService,
-            IConfiguration config)
+            INotificationService notificationService,
+            IConfiguration config,
+            ILogger<ResendVerificationCommandHandler> logger)
         {
             _userManager = userManager;
-            _emailService = emailService;
+            _notificationService = notificationService;
             _config = config;
+            _logger = logger;
         }
 
         public async Task<ApiResult<string>> Handle(
@@ -45,13 +50,15 @@ namespace letiahomes.Application.Features.Auth.Commands.ResendVerificationLink
             var link = $"{frontendUrl}/confirm-email" +
                        $"?userId={user.Id}&token={encodedToken}";
 
-            await _emailService.SendAsync(
+            _notificationService.EnqueueAccountVerified(new AccountVerifiedPayload(
                 user.Email!,
-                "Verify your account",
-                $"Click here: {link}");
+                user.FirstName,
+                link));
+            _logger.LogInformation("A verification email has been resent to {UserId}", user.Id);
 
             return ApiResult<string>.Success(
                 "If the account exists, a verification email has been sent.");
+
         }
     }
 }

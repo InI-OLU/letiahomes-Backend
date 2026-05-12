@@ -2,6 +2,7 @@
 using Hangfire.Common;
 using Hangfire.Server;
 using Hangfire.States;
+using letiahomes.Application.Common.Exceptions;
 
 namespace letiahomes.API.Filters
 {
@@ -9,7 +10,22 @@ namespace letiahomes.API.Filters
     {
         public void OnStateElection(ElectStateContext context)
         {
-            throw new NotImplementedException();
+            if(context.CandidateState is ScheduledState)
+            {
+                var failedState = context.TraversedStates
+                                    .OfType<FailedState>()
+                                    .FirstOrDefault();
+               
+                    if (failedState?.Exception is PermanentException)
+                    {
+                        context.CandidateState = new DeletedState
+                        {
+                            Reason = $"Permanent failure, not retrying: " +
+                                 $"{failedState.Exception.Message}"
+                        };
+
+                    }
+            }
         }
     }
 }

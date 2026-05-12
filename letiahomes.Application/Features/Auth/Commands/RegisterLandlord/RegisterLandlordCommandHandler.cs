@@ -2,6 +2,7 @@
 using letiahomes.Application.Abstractions.IRepository;
 using letiahomes.Application.Common;
 using letiahomes.Application.DTOs.Auth;
+using letiahomes.Application.DTOs.Notification;
 using letiahomes.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -16,29 +17,29 @@ namespace letiahomes.Application.Features.Auth.Commands.RegisterLandlord
         : IRequestHandler<RegisterLandlordCommand, ApiResult<string>>
     {
         private readonly UserManager<AppUser> _userManager;
-        private readonly IEmailService _emailService;
         private readonly ILogger<RegisterLandlordCommandHandler> _logger;
         private readonly IHostEnvironment _host;
         private readonly IConfiguration _configuration;
         private readonly IOptions<AppSettings> _options;
         private readonly IRepositoryManager _repositoryManager;
+        private readonly INotificationService _notificationService;
 
         public RegisterLandlordCommandHandler(
             UserManager<AppUser> userManager,
-            IEmailService emailService,
             ILogger<RegisterLandlordCommandHandler> logger,
             IHostEnvironment host,
             IConfiguration configuration,
             IOptions<AppSettings> options,
-            IRepositoryManager repositoryManager)
+            IRepositoryManager repositoryManager,
+            INotificationService notificationService)
         {
             _userManager = userManager;
-            _emailService = emailService;
             _logger = logger;
             _host = host;
             _configuration = configuration;
             _options = options;
             _repositoryManager = repositoryManager;
+            _notificationService = notificationService;
         }
 
         public async Task<ApiResult<string>> Handle(
@@ -96,14 +97,13 @@ namespace letiahomes.Application.Features.Auth.Commands.RegisterLandlord
 
             var message = GetAccountVerificationMessage(user.FirstName, confirmationLink);
 
-            var emailSent =  await _emailService.SendAsync(user.Email, "Confirm your account", message);
-            
-            if (!emailSent)
-            {
-                await _userManager.DeleteAsync(user);
-                return ApiResult<string>.Failure(
-                    new CustomError("500", "Failed to send confirmation email. Please try again."));
-            }
+            _notificationService.EnqueueWelcomeEmail(new WelcomeEmailPayload
+                                (
+                                     user.Email,
+                                     user.FirstName,
+                                     message
+                                ));
+            _logger.LogInformation("Welcome email sent to {UserId}", user.Id);
             _logger.LogInformation(
                                  """
                                 Email Confirmation Details:

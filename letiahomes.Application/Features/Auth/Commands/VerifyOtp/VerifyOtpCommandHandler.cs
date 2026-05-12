@@ -1,5 +1,6 @@
 ﻿using letiahomes.Application.Abstractions.Externals;
 using letiahomes.Application.Common;
+using letiahomes.Application.DTOs.Notification;
 using letiahomes.Application.Features.Auth.Commands.VerifyOtp;
 using letiahomes.Domain.Entities;
 using MediatR;
@@ -11,18 +12,18 @@ public sealed class VerifyOtpCommandHandler : IRequestHandler<VerifyOtpCommand, 
 {
     private readonly UserManager<AppUser> _userManager;
     private readonly IConfiguration _configuration;
-    private readonly IEmailService _emailService;
+    private readonly INotificationService _notificationService;
     private readonly ILogger<VerifyOtpCommandHandler> _logger;
 
     public VerifyOtpCommandHandler(
         UserManager<AppUser> userManager,
         IConfiguration configuration,
-        IEmailService emailService,
+        INotificationService notificationService,
         ILogger<VerifyOtpCommandHandler> logger)  
     {
         _userManager = userManager;
         _configuration = configuration;
-        _emailService = emailService;
+        _notificationService = notificationService;
         _logger = logger;
     }
 
@@ -48,17 +49,11 @@ public sealed class VerifyOtpCommandHandler : IRequestHandler<VerifyOtpCommand, 
 
         var loginLink = $"{baseUrl}/auth/login";
 
-       var emailSent = await _emailService.SendAccountVerifiedAsync(
-            user.Email!,
-            user.FirstName,
-            loginLink
-        );
-        if (!emailSent)
-        {
-          _logger.LogError("Failed to send UserVerified email to {Email}", user.Email);
-            return ApiResult<string>.Failure(
-                new CustomError("500", "Failed to send confirmation email. Please try again."));
-        }
+        _notificationService.EnqueueAccountVerified(new AccountVerifiedPayload(
+                user.Email!,
+                user.FirstName,
+                loginLink));
+        _logger.LogInformation("A verification email has been resent to {UserId}", user.Id);
         return ApiResult<string>.Success("Account verified successfully. You can now log in.");
     }
 }

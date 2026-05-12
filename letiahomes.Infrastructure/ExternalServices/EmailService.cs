@@ -1,6 +1,8 @@
 ﻿using letiahomes.Application.Abstractions.Externals;
+using letiahomes.Application.Common.Exceptions;
 using letiahomes.Application.Settings;
 using Mailjet.Client;
+using Mailjet.Client.Exceptions;
 using Mailjet.Client.Resources;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -25,7 +27,7 @@ namespace letiahomes.Infrastructure.ExternalServices
                 throw new ArgumentNullException(nameof(jetOptions), "MailJetSettings is not configured.");
         }
 
-        public async Task<bool> SendAsync(string recipient, string subject, string message)
+        public async Task SendAsync(string recipient, string subject, string message)
         {
             try
             {
@@ -59,16 +61,27 @@ namespace letiahomes.Infrastructure.ExternalServices
                 });
 
                 var response = await _mailjetClient.PostAsync(request);
-                return response?.IsSuccessStatusCode ?? false;
+                if (!response.IsSuccessStatusCode)
+                {
+                    ClassifyAndThrow(response, recipient);
+                }
+            
             }
-            catch (Exception ex)
+            catch (PermanentException)
             {
-                _logger.LogError(ex, "Failed to send email to {Recipient} with subject '{Subject}'", recipient, subject);
-                return false;
+                throw;
+            }
+            catch (TemporaryException)
+            {
+                throw;
+            }
+            catch (MailjetException ex)
+            {
+                throw new TemporaryException("Mailjet SDK error", ex);
             }
         }
 
-        public async Task<bool> SendAccountVerifiedAsync(string recipient, string firstName, string loginLink)
+        public async Task SendAccountVerifiedAsync(string recipient, string firstName, string loginLink)
         {
             try
             {
@@ -110,16 +123,27 @@ namespace letiahomes.Infrastructure.ExternalServices
                 });
 
                 var response = await _mailjetClient.PostAsync(request);
-                return response?.IsSuccessStatusCode ?? false;
+                if (!response.IsSuccessStatusCode)
+                {
+                    ClassifyAndThrow(response, recipient);
+                }
+             
             }
-            catch (Exception ex)
+            catch (PermanentException)
             {
-                _logger.LogError(ex, "Failed to send account verified email to {Recipient}", recipient);
-                return false;
+                throw;
+            }
+            catch (TemporaryException)
+            {
+                throw;
+            }
+            catch (MailjetException ex)
+            {
+                throw new TemporaryException("Mailjet SDK error", ex);
             }
         }
 
-        public async Task<bool> SendPasswordResetAsync(string recipient, string firstName, string resetLink)
+        public async Task SendPasswordResetAsync(string recipient, string firstName, string resetLink)
         {
             try
             {
@@ -161,12 +185,63 @@ namespace letiahomes.Infrastructure.ExternalServices
                 });
 
                 var response = await _mailjetClient.PostAsync(request);
-                return response?.IsSuccessStatusCode ?? false;
+              if (!response.IsSuccessStatusCode)
+                {
+                     ClassifyAndThrow(response, recipient);
+                }
+               
+               
+            }
+            catch (PermanentException)
+            {
+                throw; 
+            }
+            catch (TemporaryException)
+            {
+                throw; 
+            }
+            catch (MailjetException ex)
+            {
+                throw new TemporaryException("Mailjet SDK error", ex);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to send password reset email to {Recipient}", recipient);
-                return false;
+                throw new TemporaryException("Unexpected email error", ex);
+            }
+        }
+        private void ClassifyAndThrow (MailjetResponse response, string recipient)
+        {
+            int StatusCode = response.StatusCode;
+            string responseBody = response.GetData().ToString();
+            switch (StatusCode)
+            {
+                //Permanent errors not to be retried
+                case 400:
+                    throw new PermanentException($"Bad  request to {recipient}");
+                case 401:
+                    throw new PermanentException("Mailjet authentication failed : check API keys");
+                case 403:
+                    throw new PermanentException(
+                        "Mailjet account forbidden : check sender domain verification");
+                case 404:
+                    throw new PermanentException(
+                        $"Mailjet resource not found: {responseBody}");
+
+                //Transient errors to be retried 
+                case 429:
+                    throw new TemporaryException(
+                        "Mailjet rate limit hit : retry after delay");
+                case 500:
+                case 502:
+                case 503:
+                case 504:
+                    throw new TemporaryException(
+                        $"Mailjet server error {StatusCode} — retry");
+
+                default:
+                    throw new TemporaryException(
+                        $"Unknown Mailjet error {StatusCode}: {responseBody}");
             }
         }
     }
