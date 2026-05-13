@@ -1,4 +1,6 @@
-﻿using letiahomes.Application.DTOs.Property;
+﻿using Hangfire;
+using letiahomes.Application.DTOs.Notification;
+using letiahomes.Application.DTOs.Property;
 using letiahomes.Application.Features.Properties.Command.CreateProperty;
 using letiahomes.Application.Features.Properties.Command.CreatePropertyAmenity;
 using letiahomes.Application.Features.Properties.Command.DeleteProperty;
@@ -10,6 +12,7 @@ using letiahomes.Application.Features.Properties.Query.GetAllProperty;
 using letiahomes.Application.Features.Properties.Query.GetFeaturedProperty;
 using letiahomes.Application.Features.Properties.Query.GetPropertyById;
 using letiahomes.Application.RequestFeatures;
+using letiahomes.Infrastructure.ExternalServices;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,10 +26,12 @@ namespace letiahomes.API.Controllers
     public class PropertyController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly IBackgroundJobClient _backgroundJobClient;
 
-        public PropertyController(IMediator mediator)
+        public PropertyController(IMediator mediator,IBackgroundJobClient backgroundJobClient)
         {
             _mediator = mediator;
+            _backgroundJobClient = backgroundJobClient;
         }
         [Authorize(Roles = "Admin,Landlord")]
         [HttpPost]
@@ -139,6 +144,16 @@ namespace letiahomes.API.Controllers
 
 
             return Ok(result);
+        }
+
+        [HttpPost("test-permanent-exception")]
+        public IActionResult TestPermanentException()
+        {
+            _backgroundJobClient.Enqueue<NotificationJobService>(
+                job => job.ProcessWelcomeEmailAsync(
+                    new WelcomeEmailPayload("test@", "Test Subject", "Test Message")));
+
+            return Ok("Job enqueued");
         }
 
         /*[Authorize(Roles = "Admin,Landlord,Tenant")]

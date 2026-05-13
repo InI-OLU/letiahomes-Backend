@@ -32,7 +32,7 @@ namespace letiahomes.Application.Features.Properties.Command.SubmitPropertyForRe
             "Property {PropertyId} submitted for review by landlord {UserId}",
             property.Id, request.UserId);
             //An email should be sent here to confirm the creation of the account to the Landlord Email
-            //Notify Admin of the new propertyCreated
+            //Notify admin of the new propertyCreated on the landlord Dashboard also 
             return ApiResult<string>.Success(
            "Your property has been submitted for review. We will notify you once it is approved.");
         }

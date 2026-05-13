@@ -1,5 +1,8 @@
 using FluentValidation;
+using Hangfire;
+using Hangfire.PostgreSql;
 using letiahomes.API.Extension;
+using letiahomes.API.Filters;
 using letiahomes.Application.Abstractions.Externals;
 using letiahomes.Application.Abstractions.IRepository;
 using letiahomes.Application.Common;
@@ -22,8 +25,6 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
-using Hangfire;
-using Hangfire.PostgreSql;
 
 // Bootstrap logger — catches startup crashes before full config loads
 Log.Logger = new LoggerConfiguration()
@@ -127,6 +128,8 @@ try
     //HangFire Configuration
     builder.Services.AddHangfire(x =>
     {
+
+        x.UseFilter(new RetryAttribute());
         x.UseSimpleAssemblyNameTypeSerializer()
         .UseRecommendedSerializerSettings()
         .UsePostgreSqlStorage(config.GetConnectionString("DefaultConnection"));

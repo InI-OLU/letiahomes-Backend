@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <Folder Include="Features\AdminDashboard\" />
-    <Folder Include="Features\Booking\" />
     <Folder Include="Features\Properties\Command\ApproveProperty\" />
   </ItemGroup>
 
