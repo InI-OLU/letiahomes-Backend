@@ -146,7 +146,7 @@ namespace letiahomes.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("test-permanent-exception")]
+        /*[HttpPost("test-permanent-exception")]
         public IActionResult TestPermanentException()
         {
             _backgroundJobClient.Enqueue<NotificationJobService>(
@@ -154,7 +154,7 @@ namespace letiahomes.API.Controllers
                     new WelcomeEmailPayload("test@", "Test Subject", "Test Message")));
 
             return Ok("Job enqueued");
-        }
+        }*/
 
         /*[Authorize(Roles = "Admin,Landlord,Tenant")]
          [HttpGet("filter-properties")]
