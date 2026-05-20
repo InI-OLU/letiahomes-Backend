@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.Abstractions.IRepository
 {
-    public interface ITenantRepository:IBaseRepository<TenantProfile>
+    public interface ITenantRepository : IBaseRepository<TenantProfile>
     {
+        Task<TenantProfile?> GetTenant(string UserId);
     }
 }

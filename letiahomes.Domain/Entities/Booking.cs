@@ -15,7 +15,14 @@ namespace letiahomes.Domain.Entities
         public DateTime CheckIn { get; set; }
         public DateTime CheckOut { get; set; }
         public int NumberOfGuests { get; set; }
-        public long TotalAmountKobo { get; set; }
+        public int NightsCount { get; set; }
+        public long SubtotalKobo { get; set; }// SubTotalKobo = NightsCount * PricePerNight
+        public long PlatformFeeKobo { get; set; }//10% of SubtotalKobo
+        public long TotalAmountKobo { get; set; } // TotalAmountKobo = SubtotalKobo + PlatformFeeKobo
+        public string? RejectionReason { get; set; }   
+        public string? CancellationReason { get; set; } 
+        public DateTime? CancelledAt { get; set; }   
+        public DateTime ExpiresAt { get; set; }
         public BookingStatus Status { get; set; } = BookingStatus.Pending;
 
         // navigation

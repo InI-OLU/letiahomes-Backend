@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace letiahomes.Application.DTOs.Booking
+﻿namespace letiahomes.Application.DTOs.Booking
 {
-    internal class RejectBookingRequest
+    public sealed class RejectBookingRequest
     {
+        public string? Reason { get; init; }
     }
 }

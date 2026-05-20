@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using letiahomes.Application.Common;
+using MediatR;
 
-namespace letiahomes.Application.Features.Booking.CreateBooking
+namespace letiahomes.Application.Features.Booking.Commands.CreateBooking
 {
-    internal class CreateBookingCommandHandler
+    public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand, ApiResult<string>>
     {
+        public Task<ApiResult<string>> Handle(CreateBookingCommand request, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

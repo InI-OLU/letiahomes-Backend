@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using letiahomes.Application.Common;
+using MediatR;
 
 namespace letiahomes.Application.Features.Booking.Commands.RejectBooking
 {
-    internal class RejectBookingCommand
-    {
-    }
+    public record RejectBookingCommand(Guid BookingId, string UserId, string? Reason) :IRequest<ApiResult<string>>;
 }

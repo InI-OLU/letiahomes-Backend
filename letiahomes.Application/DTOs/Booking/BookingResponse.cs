@@ -1,12 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace letiahomes.Application.DTOs.Booking
+﻿namespace letiahomes.Application.DTOs.Booking
 {
-    internal class BookingResponse
+    public sealed class BookingResponse
     {
+        public Guid Id { get; init; }
+        public Guid PropertyId { get; init; }
+        public string PropertyTitle { get; init; } = string.Empty;
+        public string? CoverImageUrl { get; init; }
+        public DateTime CheckIn { get; init; }
+        public DateTime CheckOut { get; init; }
+        public int NightsCount { get; init; }
+        public int NumberOfGuests { get; init; }
+        public long SubtotalKobo { get; init; }
+        public long TotalAmountKobo { get; init; }
+        public DateTime CreatedAt { get; init; }
+        public DateTime ExpiresAt { get; init; }
     }
 }

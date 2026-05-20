@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using letiahomes.Application.Common;
+using letiahomes.Application.DTOs.Booking;
+using MediatR;
 
-namespace letiahomes.Application.Features.Booking.CreateBooking
+namespace letiahomes.Application.Features.Booking.Commands.CreateBooking
 {
-    internal class CreateBookingCommand
-    {
-    }
+    public record CreateBookingCommand(CreateBookingRequest Request, string UserId):IRequest<ApiResult<string>>;
 }
