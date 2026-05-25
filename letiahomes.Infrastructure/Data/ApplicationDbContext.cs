@@ -448,6 +448,13 @@ namespace letiahomes.Infrastructure.Data
                 .HasForeignKey(u => u.PropertyId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            //UnavailableDate Indexbuilder
+            builder.Entity<UnavailableDate>()
+                 .HasIndex(u => new { u.Date, u.PropertyId })
+                .IsUnique()
+                .HasDatabaseName("IX_UnavailableDate_Date_PropertyId");
+
+
             // Booking → Property
             builder.Entity<Booking>()
                 .HasOne(b => b.Property)

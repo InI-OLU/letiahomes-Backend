@@ -34,23 +34,6 @@ namespace letiahomes.Application.Features.Booking.Commands.CreateBooking
            * message to the user that the property isnt available 
            * 
            * this is my plan 
-           * 
-           * 
-           * 
-           * 
-           * 
-           * 
-           * 
-           * 
-           * 
-           * 
-           * 
-           * 
-           * 
-           * 
-           * 
-           * 
-           * 
            */
             throw new NotImplementedException();
         }

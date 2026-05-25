@@ -9,8 +9,8 @@ namespace letiahomes.Domain.Entities
 {
     public class UnavailableDate:BaseEntity
     {
-        public Guid PropertyId { get; set; }
+        public  Guid PropertyId { get; set; }
         public DateTime Date { get; set; }  // each blocked date is one record
-        public Property Property { get; set; }
+        public required Property Property { get; set; }
     }
 }
