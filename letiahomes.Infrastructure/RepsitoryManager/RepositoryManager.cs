@@ -17,6 +17,7 @@ namespace letiahomes.Infrastructure.RepsitoryManager
         private IPropertyImageRepository? _propertyImageRepository;
         private IPropertyAmenityRepository? _propertyAmenityRepository;
         private IBookingRepository? _bookingRepository;
+        private IUnavailableDateRepository? _unavailableDateRepository;
 
         public RepositoryManager(ApplicationDbContext dbContext)
         {
@@ -39,6 +40,8 @@ namespace letiahomes.Infrastructure.RepsitoryManager
             _propertyAmenityRepository ??= new PropertyAmenityRepository(_dbContext);
         public IBookingRepository BookingRepository =>
             _bookingRepository ??= new BookingRepository(_dbContext);
+        public IUnavailableDateRepository UnavailableDateRepository =>
+            _unavailableDateRepository ??= new UnavailableDateRepository(_dbContext);
         public async Task SaveChangesAsync(
             CancellationToken cancellationToken = default)
         {
