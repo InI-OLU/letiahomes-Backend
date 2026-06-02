@@ -16,6 +16,7 @@ namespace letiahomes.Application.Abstractions.IRepository
         IPropertyImageRepository PropertyImage { get; }
         IPropertyAmenityRepository PropertyAmenity { get; }
         IUnavailableDateRepository UnavailableDateRepository { get; }
+        IBookingRepository BookingRepository { get; }
 
         Task SaveChangesAsync(CancellationToken cancellationToken = default);
         Task<IDbContextTransaction> BeginTransactionAsync();

@@ -12,6 +12,10 @@ namespace letiahomes.Application.Features.Booking.Commands.CreateBooking
     {
         public CreateBookingValidator()
         {
+            RuleFor(x => x.UserId)
+                .NotEmpty()
+                .WithMessage("User identity is required");
+
             RuleFor(x => x.Request.PropertyId)
                 .NotEmpty()
                 .WithMessage("PropertyId cannot be empty");
@@ -22,11 +26,15 @@ namespace letiahomes.Application.Features.Booking.Commands.CreateBooking
 
             RuleFor(x => x.Request.CheckIn)
                 .Cascade(CascadeMode.Stop)
-                .GreaterThan(DateTime.UtcNow.Date)
+                .NotEmpty()
+                .WithMessage("Check-in date is required")
+                .GreaterThan(_ => DateTime.UtcNow.Date)  
                 .WithMessage("Check-in date must be at least 1 day in the future");
 
             RuleFor(x => x.Request.CheckOut)
                 .Cascade(CascadeMode.Stop)
+                .NotEmpty()
+                .WithMessage("Check-out date is required")
                 .GreaterThan(x => x.Request.CheckIn)
                 .WithMessage("Check-out date must be after check-in date")
                 .Must((command, checkOut) =>

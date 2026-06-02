@@ -23,7 +23,7 @@ namespace letiahomes.Domain.Entities
         public string? CancellationReason { get; set; } 
         public DateTime? CancelledAt { get; set; }   
         public DateTime ExpiresAt { get; set; }
-        public BookingStatus Status { get; set; } = BookingStatus.Pending;
+        public BookingStatus Status { get; set; } 
 
         // navigation
         public Property Property { get; set; }

@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.Abstractions.IRepository
 {
-    public interface IBookingRepository:IBaseRepository<Booking>
+    public interface IBookingRepository : IBaseRepository<Booking>
     {
+        Task<Booking?> GetBookingByBookingId(Guid BookingId);
     }
 }

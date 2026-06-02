@@ -11,6 +11,9 @@ namespace letiahomes.Domain.Entities
     {
         public  Guid PropertyId { get; set; }
         public DateTime Date { get; set; }  // each blocked date is one record
-        public required Property Property { get; set; }
+        public Guid? BookingId { get; set; }
+        public  Property? Property { get; set; }
+        public Booking? Booking { get; set; }
+
     }
 }

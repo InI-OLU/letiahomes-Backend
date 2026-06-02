@@ -1,4 +1,6 @@
-﻿using letiahomes.Application.Common;
+﻿using letiahomes.Application.Abstractions.IRepository;
+using letiahomes.Application.Common;
+using letiahomes.Domain.Enums;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -10,9 +12,46 @@ namespace letiahomes.Application.Features.Booking.Commands.ConfirmBooking
 {
     public class ConfirmBookingCommandHandler : IRequestHandler<ConfirmBookingCommand, ApiResult<string>>
     {
-        public Task<ApiResult<string>> Handle(ConfirmBookingCommand request, CancellationToken cancellationToken)
+        private readonly IRepositoryManager _repositoryManager;
+
+        public ConfirmBookingCommandHandler(IRepositoryManager repositoryManager)
         {
-            throw new NotImplementedException();
+            _repositoryManager = repositoryManager;
+        }
+        public async Task<ApiResult<string>> Handle(ConfirmBookingCommand request, CancellationToken cancellationToken)
+        {
+            var booking = await _repositoryManager.BookingRepository.GetBookingByBookingId(request.BookingId);
+
+            if (booking is null)
+                return ApiResult<string>.Failure(new CustomError("404", "Booking not found"));
+            if (booking.Status != BookingStatus.Pending)
+                return ApiResult<string>.Failure(new CustomError("400", $"Booking cannot be confirmed. Current status: {booking.Status}"));
+            if(DateTime.UtcNow > booking.ExpiresAt)
+                return ApiResult<string>.Failure(new CustomError("400", "This booking has expired. The 24-hour response window has passed."));
+            var landlord = await _repositoryManager.Landlords.GetLandlord(request.UserId);
+            if (landlord == null || landlord.IsVerified == false )
+            {
+                return ApiResult<string>.Failure(new CustomError("404", "User not found or IsNotVerified"));
+            }
+            var property = await _repositoryManager.Properties.GetByIdAsync(booking.PropertyId);
+            if (property is null)
+                return ApiResult<string>.Failure(new CustomError("404", "Property not found"));
+            if (property.LandlordProfileId != landlord.Id)
+                return ApiResult<string>.Failure(new CustomError("403", "User not authorized to confirm booking on property"));
+            booking.Status = BookingStatus.Confirmed;
+            booking.ExpiresAt = DateTime.UtcNow.AddHours(2);
+
+            _repositoryManager.BookingRepository.Update(booking);
+            await _repositoryManager.SaveChangesAsync();
+
+            // ─── 7. NOTIFICATIONS — after save only ───────────────────────────
+            // await _mediator.Publish(new BookingConfirmedNotification(booking.Id), cancellationToken);
+            // The notification handler will:
+            //   - Generate Paystack payment link
+            //   - Email tenant: "Booking confirmed — complete payment within 2 hours"
+            //   - Email landlord: "You confirmed a booking — tenant will pay shortly"
+
+            return ApiResult<string>.Success("Booking confirmed. Tenant has been notified to complete payment.");
         }
     }
 }
