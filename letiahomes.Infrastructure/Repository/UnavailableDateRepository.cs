@@ -23,6 +23,20 @@ namespace letiahomes.Infrastructure.Repository
             return !hasConflict;
            
         }
+        public async Task ReleaseBookingDatesAsync(Guid bookingId)
+        {
+            await _dbContext.UnavailableDates
+                                        .Where(x => x.BookingId == bookingId)
+                                        .ExecuteDeleteAsync();
+            
+        }
+        public async Task<DateTime?> GetCheckInDate (Guid bookingId)
+        {
+            return await _dbContext.UnavailableDates.Where(x => x.BookingId == bookingId)
+                                                    .OrderBy(x => x.Date)
+                                                    .Select(x => x.Date)
+                                                    .FirstOrDefaultAsync();
+        }
     }
 
 }
