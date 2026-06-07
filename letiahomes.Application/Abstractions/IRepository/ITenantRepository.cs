@@ -10,5 +10,6 @@ namespace letiahomes.Application.Abstractions.IRepository
     public interface ITenantRepository : IBaseRepository<TenantProfile>
     {
         Task<TenantProfile?> GetTenant(string UserId);
+        Task<TenantProfile?> GetTenant(Guid UserId);
     }
 }
