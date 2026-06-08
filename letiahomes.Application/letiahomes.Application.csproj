@@ -16,6 +16,8 @@
 
   <ItemGroup>
     <Folder Include="Features\AdminDashboard\" />
+    <Folder Include="Features\Booking\Queries\AdminBookings\" />
+    <Folder Include="Features\Booking\Queries\LanlordBookings\" />
     <Folder Include="Features\Properties\Command\ApproveProperty\" />
   </ItemGroup>
 

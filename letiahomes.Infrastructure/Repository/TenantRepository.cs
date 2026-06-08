@@ -15,6 +15,12 @@ namespace letiahomes.Infrastructure.Repository
                                                     .AsNoTracking()
                                                     .FirstOrDefaultAsync();
         }
+        public async Task<TenantProfile?> GetTenant(Guid UserId)
+        {
+            return await _dbContext.TenantProfiles.Where(x => x.Id == UserId)
+                                                    .AsNoTracking()
+                                                    .FirstOrDefaultAsync();
+        }
     }
 
 }

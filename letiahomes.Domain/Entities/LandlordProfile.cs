@@ -6,6 +6,7 @@ public class LandlordProfile:AuditableEntity
     public string AppUserId { get; set; }
 
     public bool IsVerified { get; set; } = false;
+    public int CancellationCount { get; set; } = 0;
 
     public ICollection<Property> Properties { get; set; } = [];
     public ICollection<Payout> Payouts { get; set; } = [];

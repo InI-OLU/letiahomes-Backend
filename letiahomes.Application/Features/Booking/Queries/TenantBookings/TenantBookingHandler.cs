@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.Features.Booking.Queries.TenantBookings
 {
-    internal class TenantBookingQuery
+    public class TenantBookingHandler
     {
     }
 }

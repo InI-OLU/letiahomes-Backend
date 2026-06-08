@@ -8,5 +8,5 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.Features.Booking.Commands.CancelBooking
 {
-        public record CancelBookingCommand(Guid BookingId, string UserId, string? Reason) :IRequest<ApiResult<string>>;
+        public record TenantCancelBookingCommand(Guid BookingId, string UserId, string? Reason) :IRequest<ApiResult<string>>;
 }

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace letiahomes.Application.Features.Booking.Queries.TenantBookings
+namespace letiahomes.Application.RequestFeatures
 {
-    internal class TenantBookingQuery
+    internal class TenantBookingFilter
     {
     }
 }
