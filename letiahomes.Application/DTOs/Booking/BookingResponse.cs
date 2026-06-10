@@ -3,7 +3,6 @@
     public sealed class BookingResponse
     {
         public Guid Id { get; init; }
-        public Guid PropertyId { get; init; }
         public string PropertyTitle { get; init; } = string.Empty;
         public string? CoverImageUrl { get; init; }
         public DateTime CheckIn { get; init; }

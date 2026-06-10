@@ -11,6 +11,6 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.Features.Booking.Queries.TenantBookings
 {
-  public record TenantBookingRequest(TenantBookingFilter request): IRequest<ApiResult<PagedList<BookingResponse>>>;
+  public record TenantBookingRequest(TenantBookingFilter request,string userId,Guid bookingId): IRequest<ApiResult<PagedList<BookingResponse>>>;
 
 }
