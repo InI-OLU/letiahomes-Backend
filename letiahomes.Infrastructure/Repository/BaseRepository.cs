@@ -18,7 +18,7 @@ namespace letiahomes.Infrastructure.Repository
             _dbSet = _dbContext.Set<T>();
         }
 
-        public IQueryable<T> FindAll(Expression<Func<T, bool>> predicate ,bool trackChanges)=>
+        public IQueryable<T> Get(Expression<Func<T, bool>> predicate ,bool trackChanges)=>
         
             !trackChanges?
                  _dbSet.Where(predicate).AsNoTracking():

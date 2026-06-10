@@ -14,7 +14,7 @@ namespace letiahomes.Application.Abstractions.IRepository
         void Delete(T entity);
         Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<T> Entry(T entity);
         Task<bool> ExistsAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
-        IQueryable<T> FindAll(System.Linq.Expressions.Expression<Func<T, bool>> predicate, bool trackChanges);
+        IQueryable<T> Get(System.Linq.Expressions.Expression<Func<T, bool>> predicate, bool trackChanges);
         Task<T?> GetByIdAsync(Guid id);
         void Update(T entity);
     }

@@ -11,12 +11,13 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.Features.Booking.Queries.TenantBookings
 {
-    public class TenantBookingHandler(ApplicationDbContext applicationDbContext) : IRequestHandler<TenantBookingRequest, ApiResult<PagedList<BookingResponse>>>
+    public class TenantBookingHandler(IRepositoryManager repositoryManager) : IRequestHandler<TenantBookingRequest, ApiResult<PagedList<BookingResponse>>>
     {
-        
+        private readonly IRepositoryManager _repositoryManager = repositoryManager;
 
-        public Task<ApiResult<PagedList<BookingResponse>>> Handle(TenantBookingRequest request, CancellationToken cancellationToken)
+        public async  Task<ApiResult<PagedList<BookingResponse>>> Handle(TenantBookingRequest request, CancellationToken cancellationToken)
         {
+            var tenant = await _repositoryManager.Tenants.Get(t => t.AppUser.IsActive == true);
             throw new NotImplementedException();
         }
     }
