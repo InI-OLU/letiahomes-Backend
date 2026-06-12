@@ -30,13 +30,7 @@ namespace letiahomes.Infrastructure.Repository
                                         .ExecuteDeleteAsync();
             
         }
-        public async Task<DateTime?> GetCheckInDate (Guid bookingId)
-        {
-            return await _dbContext.UnavailableDates.Where(x => x.BookingId == bookingId)
-                                                    .OrderBy(x => x.Date)
-                                                    .Select(x => x.Date)
-                                                    .FirstOrDefaultAsync();
-        }
+      
     }
 
 }

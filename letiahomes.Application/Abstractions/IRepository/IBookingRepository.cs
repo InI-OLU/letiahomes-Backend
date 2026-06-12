@@ -10,5 +10,6 @@ namespace letiahomes.Application.Abstractions.IRepository
     public interface IBookingRepository : IBaseRepository<Booking>
     {
         Task<Booking?> GetBookingByBookingId(Guid BookingId);
+        Task<bool> HasConflictBookingAsync(Guid propertyId, DateTime Checkin, DateTime CheckOut);
     }
 }

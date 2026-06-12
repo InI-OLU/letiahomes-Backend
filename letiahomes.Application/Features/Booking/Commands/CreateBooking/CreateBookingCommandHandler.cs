@@ -3,6 +3,7 @@ using letiahomes.Application.Common;
 using letiahomes.Domain.Entities;
 using letiahomes.Domain.Enums;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace letiahomes.Application.Features.Booking.Commands.CreateBooking
 {
@@ -91,8 +92,9 @@ namespace letiahomes.Application.Features.Booking.Commands.CreateBooking
 
                 await _repositoryManager.CommitTransactionAsync(transaction);
             }
-            catch
+            catch(DbUpdateException ex)
             {
+                //catch the Db Unique constraint violation exceptionn and return an error message 
                 await _repositoryManager.RollbackTransactionAsync(transaction);
                 throw;
             }
@@ -103,6 +105,12 @@ namespace letiahomes.Application.Features.Booking.Commands.CreateBooking
             // await _mediator.Publish(new BookingRequestedNotification(booking.Id), cancellationToken);
 
             return ApiResult<string>.Success(booking.Id.ToString());
+        }
+        
+        private static bool IsUniqueConstraintViolation(DbUpdateException ex)
+        {
+            return ex.InnerException is PostgresException pgEx 
+                  && pgEx.SqlState
         }
     }
 }
