@@ -44,7 +44,6 @@ namespace letiahomes.Application.Features.Booking.Commands.RejectBooking
             var transaction = await _repositoryManager.BeginTransactionAsync();
             try
             {
-                await _repositoryManager.UnavailableDateRepository.ReleaseBookingDatesAsync(booking.Id);
                 booking.Status = BookingStatus.Rejected;
                 booking.RejectionReason = request.Reason;
                 await _repositoryManager.SaveChangesAsync();

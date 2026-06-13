@@ -17,22 +17,6 @@ namespace letiahomes.Application.Features.Booking.Commands.CreateBooking
         }
         public async Task<ApiResult<string>> Handle(CreateBookingCommand request, CancellationToken cancellationToken)
         {
-            var tenant = await _repositoryManager.Tenants.GetTenant(request.UserId);
-            var property = await _repositoryManager.Properties.GetByIdAsync(request.Request.PropertyId);
-            if (tenant == null || tenant.AppUser.IsActive == false || tenant.AppUser.IsVerified == false)
-            {
-                return ApiResult<string>.Failure(new CustomError("400", "User not Permitted to make booking"));
-            }
-            if (property == null ||property.IsAvailable == false || property.IsApproved == false )
-            {
-                return ApiResult<string>.Failure(new CustomError("400", "Property not available for booking"));
-            }
-            var pendingCount = tenant.Bookings.Count(b => b.Status == BookingStatus.Pending);
-            if (pendingCount >= 3)
-                return ApiResult<string>.Failure(new CustomError("400", "You cannot have more than 3 pending bookings at a time"));
-
-
-            // ─── 3. VALIDATE DATES ────────────────────────────────────────────
 
             var today = DateTime.UtcNow.Date;
             var checkIn = request.Request.CheckIn.Date;
@@ -48,8 +32,20 @@ namespace letiahomes.Application.Features.Booking.Commands.CreateBooking
             if (nights > 90)
                 return ApiResult<string>.Failure(new CustomError("400", "Maximum booking duration is 90 nights"));
 
-
-            var isDateAvailable = await _repositoryManager.UnavailableDateRepository.IsDateAvailableAsync(request.Request.PropertyId, request.Request.CheckIn, request.Request.CheckOut);
+            var tenant = await _repositoryManager.Tenants.GetTenant(request.UserId);
+            var property = await _repositoryManager.Properties.GetByIdAsync(request.Request.PropertyId);
+            if (tenant == null || tenant.AppUser.IsActive == false || tenant.AppUser.IsVerified == false)
+            {
+                return ApiResult<string>.Failure(new CustomError("400", "User not Permitted to make booking"));
+            }
+            if (property == null ||property.IsAvailable == false || property.IsApproved == false )
+            {
+                return ApiResult<string>.Failure(new CustomError("400", "Property not available for booking"));
+            }
+            var pendingCount = tenant.Bookings.Count(b => b.Status == BookingStatus.Pending);
+            if (pendingCount >= 3)
+                return ApiResult<string>.Failure(new CustomError("400", "You cannot have more than 3 pending bookings at a time"));
+            var isDateAvailable = await _repositoryManager.BookingRepository.HasConflictBookingAsync(request.Request.PropertyId, request.Request.CheckIn, request.Request.CheckOut);
                 if (!isDateAvailable)
                 return ApiResult<string>.Failure(new CustomError("400", "These dates have been booked"));
 
@@ -78,6 +74,10 @@ namespace letiahomes.Application.Features.Booking.Commands.CreateBooking
             var transaction = await _repositoryManager.BeginTransactionAsync();
             try
             {
+                var isDateAvailableCheck = await _repositoryManager.BookingRepository.HasConflictBookingAsync(request.Request.PropertyId, request.Request.CheckIn, request.Request.CheckOut);
+                if (!isDateAvailableCheck)
+                    return ApiResult<string>.Failure(new CustomError("400", "These dates have been booked"));
+
                 await _repositoryManager.BookingRepository.AddAsync(booking);
 
                 for (var date = checkIn; date < checkOut; date = date.AddDays(1))
@@ -92,9 +92,8 @@ namespace letiahomes.Application.Features.Booking.Commands.CreateBooking
 
                 await _repositoryManager.CommitTransactionAsync(transaction);
             }
-            catch(DbUpdateException ex)
+            catch
             {
-                //catch the Db Unique constraint violation exceptionn and return an error message 
                 await _repositoryManager.RollbackTransactionAsync(transaction);
                 throw;
             }
@@ -107,10 +106,5 @@ namespace letiahomes.Application.Features.Booking.Commands.CreateBooking
             return ApiResult<string>.Success(booking.Id.ToString());
         }
         
-        private static bool IsUniqueConstraintViolation(DbUpdateException ex)
-        {
-            return ex.InnerException is PostgresException pgEx 
-                  && pgEx.SqlState
-        }
     }
 }

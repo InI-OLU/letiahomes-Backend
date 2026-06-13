@@ -51,8 +51,6 @@ namespace letiahomes.Application.Features.Booking.Commands.CancelBooking
             var transaction = await _repositoryManager.BeginTransactionAsync();
             try
             {
-                await _repositoryManager.UnavailableDateRepository.ReleaseBookingDatesAsync(booking.Id);
-
                 booking.Status = BookingStatus.Cancelled;
                 booking.CancelledAt = DateTime.UtcNow;
                 booking.CancellationReason = request.Reason;

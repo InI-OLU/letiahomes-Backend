@@ -38,6 +38,9 @@ namespace letiahomes.Application.Features.Booking.Commands.ConfirmBooking
                 return ApiResult<string>.Failure(new CustomError("404", "Property not found"));
             if (property.LandlordProfileId != landlord.Id)
                 return ApiResult<string>.Failure(new CustomError("403", "User not authorized to confirm booking on property"));
+            var isDateAvailable = await _repositoryManager.BookingRepository.HasConflictBookingAsync(booking.PropertyId, booking.CheckIn, booking.CheckOut);
+            if (!isDateAvailable)
+                return ApiResult<string>.Failure(new CustomError("400", "These dates have been booked"));
             booking.Status = BookingStatus.AwaitingConfirmation;
             booking.ExpiresAt = DateTime.UtcNow.AddHours(2);
 

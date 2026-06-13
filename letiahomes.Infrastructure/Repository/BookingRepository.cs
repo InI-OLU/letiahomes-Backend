@@ -1,5 +1,6 @@
 ﻿using letiahomes.Application.Abstractions.IRepository;
 using letiahomes.Domain.Entities;
+using letiahomes.Domain.Enums;
 using letiahomes.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -19,6 +20,15 @@ namespace letiahomes.Infrastructure.Repository
             return await _dbContext.Bookings.Where(x => x.Id == BookingId)
                                       .AsNoTracking()
                                       .FirstOrDefaultAsync();
+        }
+        
+        public async Task<bool> HasConflictBookingAsync (Guid propertyId, DateTime Checkin, DateTime CheckOut)
+        {
+            return await _dbContext.Bookings
+                  .AnyAsync(b =>
+                        b.PropertyId == propertyId &&
+                        b.CheckIn >= Checkin && b.CheckOut < CheckOut &&
+                        b.Status != BookingStatus.Cancelled && b.Status != BookingStatus.Rejected);
         }
     }
 }

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace letiahomes.Infrastructure.ExternalServices
+namespace letiahomes.Application.Abstractions.Jobs
 {
-    internal class BookingAutoExpiryJob
+    internal interface IAwaitingPaymentExpiryJob
     {
     }
 }

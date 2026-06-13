@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace letiahomes.Application.Features.Booking.BookingBackgroundServices
+namespace letiahomes.Infrastructure.BookingBackgroundService
 {
-    internal class LandlordExpiryService
+    internal class BookingAutoExpiryJob
     {
     }
 }
