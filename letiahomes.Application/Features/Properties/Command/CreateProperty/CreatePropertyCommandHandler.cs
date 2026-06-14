@@ -26,7 +26,7 @@ namespace letiahomes.Application.Features.Properties.Command.CreateProperty
 
         public async Task<ApiResult<string>> Handle(CreatePropertyCommand request, CancellationToken cancellationToken)
         {
-            var landlord = await _repositoryManager.Landlords.FindAll(x => x.AppUserId == request.userId && x.IsVerified == true,false)
+            var landlord = await _repositoryManager.Landlords.Get(x => x.AppUserId == request.userId && x.IsVerified == true,false)
                                                               .FirstOrDefaultAsync();
             if (landlord == null)
             {

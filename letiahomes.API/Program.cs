@@ -5,6 +5,7 @@ using letiahomes.API.Extension;
 using letiahomes.API.Filters;
 using letiahomes.Application.Abstractions.Externals;
 using letiahomes.Application.Abstractions.IRepository;
+using letiahomes.Application.Abstractions.Jobs;
 using letiahomes.Application.Common;
 using letiahomes.Application.Common.Behaviours;
 using letiahomes.Application.Settings;
@@ -172,6 +173,8 @@ try
     builder.Services.AddScoped<ITokenExtension, TokenExtension>();
     builder.Services.AddScoped<INotificationService, NotificationService>();
     builder.Services.AddScoped<NotificationJobService>();
+    builder.Services.AddScoped<IBookingAutoExpiryJob, BookingAutoExpiryJob>();
+    builder.Services.AddScoped<IAwaitingPaymentExpiryJob, AwaitingPaymentExpiryJob>();
 
 
 

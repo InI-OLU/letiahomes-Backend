@@ -79,7 +79,7 @@ namespace letiahomes.Application.Features.Auth.Commands.Login
             };
 
             var existingTokens = await _repositoryManager.RefreshTokens
-                .FindAll(x => x.UserId == user.Id && !x.IsRevoked,false)
+                .Get(x => x.UserId == user.Id && !x.IsRevoked,false)
                 .ToListAsync(cancellationToken);
 
             foreach (var token in existingTokens)

@@ -10,12 +10,12 @@ using Microsoft.EntityFrameworkCore;
 namespace letiahomes.Application.Features.Booking.Queries.LandlordBookings
 {
     public class LandlordBookingHandler(IRepositoryManager repositoryManager)
-        : IRequestHandler<LandlordBookingQuery, ApiResult<PagedList<LandlordBookingResponse>>>
+        : IRequestHandler<LandlordBookingRequest, ApiResult<PagedList<LandlordBookingResponse>>>
     {
         private readonly IRepositoryManager _repositoryManager = repositoryManager;
 
         public async Task<ApiResult<PagedList<LandlordBookingResponse>>> Handle(
-            LandlordBookingQuery request,
+            LandlordBookingRequest request,
             CancellationToken cancellationToken)
         {
             var landlordExists = await _repositoryManager.Landlords

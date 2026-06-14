@@ -9,12 +9,12 @@ using Microsoft.EntityFrameworkCore;
 namespace letiahomes.Application.Features.Booking.Queries.AdminBookings
 {
     public class AdminBookingHandler(IRepositoryManager repositoryManager)
-        : IRequestHandler<AdminBookingQuery, ApiResult<PagedList<AdminBookingResponse>>>
+        : IRequestHandler<AdminBookingRequest, ApiResult<PagedList<AdminBookingResponse>>>
     {
         private readonly IRepositoryManager _repositoryManager = repositoryManager;
 
         public async Task<ApiResult<PagedList<AdminBookingResponse>>> Handle(
-            AdminBookingQuery request,
+            AdminBookingRequest request,
             CancellationToken cancellationToken)
         {
             var query = _repositoryManager.BookingRepository

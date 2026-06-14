@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.Features.Booking.Queries.LanlordBookings
 {
-    public record LandlordBookingQuery(
+    public record LandlordBookingRequest(
       string UserId,
       LandlordBookingFilter Filter) : IRequest<ApiResult<PagedList<LandlordBookingResponse>>>;
 }

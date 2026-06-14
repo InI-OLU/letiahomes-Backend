@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.Abstractions.Jobs
 {
-    internal interface IBookingAutoExpiryJob
+    public interface IBookingAutoExpiryJob
     {
+        Task ExpirePendingBookingsAsync();
     }
+
 }

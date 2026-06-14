@@ -19,7 +19,7 @@ namespace letiahomes.Application.Features.Properties.Command.DeleteProperty
         public async Task<ApiResult<string>> Handle(DeletePropertyCommand request, CancellationToken cancellationToken)
         {
             var property = await _repositoryManager.Properties
-            .FindAll(x => x.Id == request.PropertyId
+            .Get(x => x.Id == request.PropertyId
                        && x.Landlord.AppUserId == request.userId,
                      true)
             .FirstOrDefaultAsync(cancellationToken);

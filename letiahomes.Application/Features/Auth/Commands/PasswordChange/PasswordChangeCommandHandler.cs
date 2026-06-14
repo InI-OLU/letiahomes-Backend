@@ -59,7 +59,7 @@ namespace letiahomes.Application.Features.Auth.Commands.PasswordChange
 
             // Revoke all existing refresh tokens so all sessions are invalidated
             var userTokens = await _repositoryManager.RefreshTokens
-                .FindAll(t => t.UserId == user.Id && !t.IsRevoked, false)
+                .Get(t => t.UserId == user.Id && !t.IsRevoked, false)
                 .ToListAsync(cancellationToken);
 
             foreach (var token in userTokens)

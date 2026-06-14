@@ -10,6 +10,6 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.Features.Booking.Queries.AdminBookings
 {
-    public record AdminBookingQuery(
+    public record AdminBookingRequest(
         AdminBookingFilter Filter) : IRequest<ApiResult<PagedList<AdminBookingResponse>>>;
 }

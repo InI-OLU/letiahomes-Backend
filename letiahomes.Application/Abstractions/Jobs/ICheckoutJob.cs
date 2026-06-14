@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.Abstractions.Jobs
 {
-    public interface IAwaitingPaymentExpiryJob
+    public interface ICheckoutJob
     {
-        Task ExpireUnpaidBookingsAsync();
+        Task MarkAsCheckOutJob();
     }
 }
