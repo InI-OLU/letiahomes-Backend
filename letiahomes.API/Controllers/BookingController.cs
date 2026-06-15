@@ -22,8 +22,8 @@ namespace letiahomes.API.Controllers
     [Authorize]
     public class BookingController : ControllerBase
     {
-        private readonly IMediator _mediator;
-
+        private readonly IMediator _mediator;      
+        
         public BookingController(IMediator mediator)
         {
             _mediator = mediator;
@@ -76,6 +76,7 @@ namespace letiahomes.API.Controllers
 
             return Ok(result);
         }
+
         // POST /api/booking/{bookingId}/tenant-cancel
         [HttpPost("{bookingId:guid}/tenant-cancel")]
         public async Task<ActionResult<ApiResult<string>>> TenantCancelBooking(
