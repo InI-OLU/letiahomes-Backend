@@ -244,5 +244,23 @@ namespace letiahomes.Infrastructure.ExternalServices
                         $"Unknown Mailjet error {StatusCode}: {responseBody}");
             }
         }
+
+        private async static void BuildEmail<T> (T records) where T : class
+        {
+
+            var templatePath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot", "EmailTemplate", "ResetPassword.html"
+            );
+
+            var template = await File.ReadAllTextAsync(templatePath);
+            var htmlBody = template
+                   .Replace("{{FirstName}}", records.ToString())
+                   .Replace("{{RESET_LINK}}", records.ToString());
+            var request = new MailjetRequest
+            {
+                Resource = SendV31.Resource
+            };
+        }
     }
 }

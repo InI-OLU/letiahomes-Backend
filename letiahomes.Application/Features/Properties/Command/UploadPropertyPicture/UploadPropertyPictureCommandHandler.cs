@@ -4,11 +4,7 @@ using letiahomes.Application.Common;
 using letiahomes.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace letiahomes.Application.Features.Properties.Command.UploadPropertyPicture
 {
@@ -59,7 +55,6 @@ namespace letiahomes.Application.Features.Properties.Command.UploadPropertyPictu
                         $"{file.FileName} is not a supported format. Only JPEG and PNG are allowed."));
             }
 
-            // 4. Upload all concurrently
             var uploadTasks = request.request.PictureFiles
                 .Select(file => _cloudinaryService.UploadPhoto(file))
                 .ToList();

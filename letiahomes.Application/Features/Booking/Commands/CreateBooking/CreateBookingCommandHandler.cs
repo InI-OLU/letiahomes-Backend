@@ -99,8 +99,6 @@ namespace letiahomes.Application.Features.Booking.Commands.CreateBooking
             }
 
             // ─── 11. FIRE NOTIFICATIONS ───────────────────────────────────────
-            // These go AFTER the commit — don't send emails for data that hasn't been saved yet
-            // You'll need a MediatR INotification + handler for email
             // await _mediator.Publish(new BookingRequestedNotification(booking.Id), cancellationToken);
 
             return ApiResult<string>.Success(booking.Id.ToString());
