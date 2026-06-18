@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace letiahomes.Application.DTOs.Notification
-{
-    internal class BookingRejectedPayload
-    {
-    }
-}
+﻿public sealed record BookingRejectedPayload(
+       string Recipient,
+       string TenantFirstName,
+       string PropertyTitle,
+       DateTime CheckIn,
+       DateTime CheckOut,
+       string? Reason,
+       string BrowseLink);

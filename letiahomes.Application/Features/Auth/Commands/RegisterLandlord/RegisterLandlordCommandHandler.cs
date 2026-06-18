@@ -95,13 +95,11 @@ namespace letiahomes.Application.Features.Auth.Commands.RegisterLandlord
             var confirmationLink = $"{frontendUrl}/confirm-email" +
                                    $"?userId={user.Id}&token={encodedToken}";
 
-            var message = GetAccountVerificationMessage(user.FirstName, confirmationLink);
-
             _notificationService.EnqueueWelcomeEmail(new WelcomeEmailPayload
                                 (
                                      user.Email,
                                      user.FirstName,
-                                     message
+                                     confirmationLink
                                 ));
             _logger.LogInformation("Welcome email sent to {UserId}", user.Id);
             _logger.LogInformation(
@@ -118,22 +116,6 @@ namespace letiahomes.Application.Features.Auth.Commands.RegisterLandlord
             await _repositoryManager.SaveChangesAsync(cancellationToken);
             return ApiResult<string>.Success(
                 "Registration successful. Please check your email to verify your account.");
-        }
-
-        private string GetAccountVerificationMessage(string firstName, string link)
-        {
-            var path = Path.Combine(_host.ContentRootPath, "wwwroot", "EmailTemplate", "AccountVerification.html");
-
-            if (File.Exists(path))
-            {
-                var template = File.ReadAllText(path);
-
-                return template
-                    .Replace("{{FirstName}}", firstName)
-                    .Replace("{{CONFIRMATION_LINK}}", link);
-            }
-
-            throw new Exception($"Path not found: {path}");
         }
     }
 }

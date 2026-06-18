@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace letiahomes.Application.DTOs.Notification
-{
-    internal class BookingRequestedTenantPayload
-    {
-    }
-}
+﻿public sealed record BookingRequestedTenantPayload(
+      string Recipient,
+      string TenantFirstName,
+      string PropertyTitle,
+      DateTime CheckIn,
+      DateTime CheckOut,
+      long TotalAmountKobo);

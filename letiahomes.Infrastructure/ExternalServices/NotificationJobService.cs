@@ -21,7 +21,7 @@ namespace letiahomes.Infrastructure.ExternalServices
         public async Task ProcessWelcomeEmailAsync(WelcomeEmailPayload payload)
         {
             _logger.LogInformation("Processing welcome email job for {Recipient}", payload.Recipient);
-            await _emailService.SendAsync(payload.Recipient, payload.Subject, payload.Message);
+            await _emailService.SendAccountVerificationAsync(payload.Recipient, payload.Subject, payload.Message);
         }
 
         [AutomaticRetry(Attempts = 3, DelaysInSeconds = new[] { 10, 20, 30 })]
@@ -36,6 +36,93 @@ namespace letiahomes.Infrastructure.ExternalServices
         {
             _logger.LogInformation("Processing account verified email job for {Recipient}", payload.Recipient);
             await _emailService.SendAccountVerifiedAsync(payload.Recipient, payload.FirstName, payload.LoginLink);
+        }
+        [AutomaticRetry(Attempts = 3, DelaysInSeconds = new[] { 10, 20, 30 })]
+        public async Task ProcessBookingRequestedLandlordAsync(
+    BookingRequestedLandlordPayload payload)
+        {
+            _logger.LogInformation(
+                "Processing booking requested landlord email for {Recipient}",
+                payload.Recipient);
+
+            await _emailService.SendBookingRequestedLandlordEmailAsync(payload);
+        }
+
+        [AutomaticRetry(Attempts = 3, DelaysInSeconds = new[] { 10, 20, 30 })]
+        public async Task ProcessBookingRequestedTenantAsync(
+            BookingRequestedTenantPayload payload)
+        {
+            _logger.LogInformation(
+                "Processing booking requested tenant email for {Recipient}",
+                payload.Recipient);
+
+            await _emailService.SendBookingRequestedTenantEmailAsync(payload);
+        }
+
+        [AutomaticRetry(Attempts = 3, DelaysInSeconds = new[] { 10, 20, 30 })]
+        public async Task ProcessBookingConfirmedTenantAsync(
+            BookingConfirmedTenantPayload payload)
+        {
+            _logger.LogInformation(
+                "Processing booking confirmed tenant email for {Recipient}",
+                payload.Recipient);
+
+            await _emailService.SendBookingConfirmedTenantEmailAsync(payload);
+        }
+
+        [AutomaticRetry(Attempts = 3, DelaysInSeconds = new[] { 10, 20, 30 })]
+        public async Task ProcessBookingConfirmedLandlordAsync(
+            BookingConfirmedLandlordPayload payload)
+        {
+            _logger.LogInformation(
+                "Processing booking confirmed landlord email for {Recipient}",
+                payload.Recipient);
+
+            await _emailService.SendBookingConfirmedLandlordEmailAsync(payload);
+        }
+
+        [AutomaticRetry(Attempts = 3, DelaysInSeconds = new[] { 10, 20, 30 })]
+        public async Task ProcessBookingRejectedAsync(
+            BookingRejectedPayload payload)
+        {
+            _logger.LogInformation(
+                "Processing booking rejected email for {Recipient}",
+                payload.Recipient);
+
+            await _emailService.SendBookingRejectedEmailAsync(payload);
+        }
+
+        [AutomaticRetry(Attempts = 3, DelaysInSeconds = new[] { 10, 20, 30 })]
+        public async Task ProcessBookingCancelledAsync(
+            BookingCancelledPayload payload)
+        {
+            _logger.LogInformation(
+                "Processing booking cancelled email for {Recipient}",
+                payload.Recipient);
+
+            await _emailService.SendBookingCancelledEmailAsync(payload);
+        }
+
+        [AutomaticRetry(Attempts = 3, DelaysInSeconds = new[] { 10, 20, 30 })]
+        public async Task ProcessBookingCompletedTenantAsync(
+            BookingCompletedTenantPayload payload)
+        {
+            _logger.LogInformation(
+                "Processing booking completed tenant email for {Recipient}",
+                payload.Recipient);
+
+            await _emailService.SendBookingCompletedTenantEmailAsync(payload);
+        }
+
+        [AutomaticRetry(Attempts = 3, DelaysInSeconds = new[] { 10, 20, 30 })]
+        public async Task ProcessBookingCompletedLandlordAsync(
+            BookingCompletedLandlordPayload payload)
+        {
+            _logger.LogInformation(
+                "Processing booking completed landlord email for {Recipient}",
+                payload.Recipient);
+
+            await _emailService.SendBookingCompletedLandlordEmailAsync(payload);
         }
     }
 }
