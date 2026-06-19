@@ -44,10 +44,10 @@ namespace letiahomes.API.Controllers
             return Ok(result);
         }
         [Authorize(Roles = "Admin,Landlord")]
-        [HttpPost("{Id}upload")]
+        [HttpPost("{Id}/upload")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> UploadPropertyImage([FromForm] UploadMultiplePropertyPicture uploadRequest,
-                                                             [FromQuery] Guid Id,
+                                                             [FromRoute] Guid Id,
                                                                CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(
@@ -56,7 +56,7 @@ namespace letiahomes.API.Controllers
         }
 
         [Authorize(Roles = "Admin,Landlord")]
-        [HttpPost("{Id}amenities")]
+        [HttpPost("{Id}/amenities")]
         public async Task<IActionResult> CreatePropertyAmenity([FromBody] CreatePropertyAmenityRequest propertyAmenityRequest,
                                                                 [FromQuery] Guid PropertyId,
                                                                 CancellationToken cancellationToken)
