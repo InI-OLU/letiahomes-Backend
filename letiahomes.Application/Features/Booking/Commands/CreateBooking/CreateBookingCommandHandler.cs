@@ -1,4 +1,5 @@
-﻿using letiahomes.Application.Abstractions.IRepository;
+﻿using letiahomes.Application.Abstractions.Externals;
+using letiahomes.Application.Abstractions.IRepository;
 using letiahomes.Application.Common;
 using letiahomes.Domain.Entities;
 using letiahomes.Domain.Enums;
@@ -10,10 +11,12 @@ namespace letiahomes.Application.Features.Booking.Commands.CreateBooking
     public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand, ApiResult<string>>
     {
         private readonly IRepositoryManager  _repositoryManager;
+        private readonly INotificationService _notificationService;
 
-        public CreateBookingCommandHandler(IRepositoryManager repositoryManager)
+        public CreateBookingCommandHandler(IRepositoryManager repositoryManager,INotificationService notificationService)
         {
             _repositoryManager = repositoryManager;
+            _notificationService = notificationService;
         }
         public async Task<ApiResult<string>> Handle(CreateBookingCommand request, CancellationToken cancellationToken)
         {
@@ -42,6 +45,9 @@ namespace letiahomes.Application.Features.Booking.Commands.CreateBooking
             {
                 return ApiResult<string>.Failure(new CustomError("400", "Property not available for booking"));
             }
+            var landlord = await _repositoryManager.Landlords.GetByIdAsync(property.LandlordProfileId);
+            if (landlord is null )
+                return ApiResult<string>.Failure(new CustomError("404", "Landlord not found"));
             var pendingCount = tenant.Bookings.Count(b => b.Status == BookingStatus.Pending);
             if (pendingCount >= 3)
                 return ApiResult<string>.Failure(new CustomError("400", "You cannot have more than 3 pending bookings at a time"));
@@ -97,10 +103,24 @@ namespace letiahomes.Application.Features.Booking.Commands.CreateBooking
                 await _repositoryManager.RollbackTransactionAsync(transaction);
                 throw;
             }
+            //The link below to be replaced by the landlordDashboardLink
+            var link = "https://INIHomes.com";
+            _notificationService.EnqueueBookingRequestedLandlordEmail(new BookingRequestedLandlordPayload(
+                 tenant.AppUser.Email,
+                landlord.AppUser.FirstName,
+                tenant.AppUser.FirstName,
+                 property.Title,
+                 booking.CheckIn,
+                booking.CheckOut,
+                link));
 
-            // ─── 11. FIRE NOTIFICATIONS ───────────────────────────────────────
-            // await _mediator.Publish(new BookingRequestedNotification(booking.Id), cancellationToken);
-
+            _notificationService.EnqueueBookingRequestedTenantEmail(new BookingRequestedTenantPayload(
+                tenant.AppUser.Email,
+                tenant.AppUser.FirstName,
+                  property.Title,
+                   booking.CheckIn,
+                booking.CheckOut,
+                booking.TotalAmountKobo));
             return ApiResult<string>.Success(booking.Id.ToString());
         }
         

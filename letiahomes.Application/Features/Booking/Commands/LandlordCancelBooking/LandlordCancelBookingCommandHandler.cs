@@ -1,4 +1,5 @@
-﻿using letiahomes.Application.Abstractions.IRepository;
+﻿using letiahomes.Application.Abstractions.Externals;
+using letiahomes.Application.Abstractions.IRepository;
 using letiahomes.Application.Common;
 using letiahomes.Application.Features.Booking.Commands.CancelBooking;
 using letiahomes.Domain.Enums;
@@ -16,11 +17,14 @@ namespace letiahomes.Application.Features.Booking.Commands.LandlordCancelBooking
     {
         private readonly IRepositoryManager _repositoryManager;
         private readonly ILogger<LandlordCancelBookingCommandHandler> _logger;
+        private readonly INotificationService _notificationService;
 
-        public LandlordCancelBookingCommandHandler(IRepositoryManager repositoryManager, ILogger<LandlordCancelBookingCommandHandler> logger)
+        public LandlordCancelBookingCommandHandler(IRepositoryManager repositoryManager, ILogger<LandlordCancelBookingCommandHandler> logger,
+                                                   INotificationService notificationService)
         {
             _repositoryManager = repositoryManager;
             _logger = logger;
+            _notificationService = notificationService;
         }
 
         public async Task<ApiResult<string>> Handle(LandlordCancelBookingCommand request, CancellationToken cancellationToken)
@@ -65,6 +69,17 @@ namespace letiahomes.Application.Features.Booking.Commands.LandlordCancelBooking
                 throw;
             }
             //Sends apology email to tenant from the platform
+            long RefundAmountKobo = 250000;
+            _notificationService.EnqueueBookingCancelledEmail(new BookingCancelledPayload(
+                tenant.AppUser.Email,
+                tenant.AppUser.FirstName,
+                property.Title,
+                booking.CheckIn,
+                booking.CheckOut,
+                "Tenant",
+                booking.CancellationReason,
+                RefundAmountKobo,
+                true));
             if (landlord.CancellationCount >= 7)
             {
                 //publish an event to the admin dashboard to review the account and take action....

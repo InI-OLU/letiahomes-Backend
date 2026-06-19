@@ -1,14 +1,10 @@
-﻿using letiahomes.Application.Abstractions.IRepository;
+﻿using letiahomes.Application.Abstractions.Externals;
+using letiahomes.Application.Abstractions.IRepository;
 using letiahomes.Application.Common;
-using letiahomes.Domain.Entities;
 using letiahomes.Domain.Enums;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace letiahomes.Application.Features.Booking.Commands.RejectBooking
 {
@@ -16,11 +12,14 @@ namespace letiahomes.Application.Features.Booking.Commands.RejectBooking
     {
         private readonly IRepositoryManager _repositoryManager;
         private readonly ILogger<RejectBookingCommandHandler> _logger;
+        private readonly INotificationService _notificationService;
 
-        public RejectBookingCommandHandler(IRepositoryManager repositoryManager,ILogger<RejectBookingCommandHandler> logger)
+        public RejectBookingCommandHandler(IRepositoryManager repositoryManager,ILogger<RejectBookingCommandHandler> logger,
+                                           INotificationService notificationService)
         {
             _repositoryManager = repositoryManager;
             _logger = logger;
+            _notificationService = notificationService;
         }
         public async Task<ApiResult<string>> Handle(RejectBookingCommand request, CancellationToken cancellationToken)
         {
@@ -40,7 +39,9 @@ namespace letiahomes.Application.Features.Booking.Commands.RejectBooking
                 return ApiResult<string>.Failure(new CustomError("404", "Property not found"));
             if (property.LandlordProfileId != landlord.Id)
                 return ApiResult<string>.Failure(new CustomError("403", "User not authorized to confirm booking on property"));
-           
+            var tenant = await _repositoryManager.Tenants.GetTenant(booking.TenantProfileId);
+            if (tenant is null)
+                return ApiResult<string>.Failure(new CustomError("404", "tenant not found"));
             var transaction = await _repositoryManager.BeginTransactionAsync();
             try
             {
@@ -57,7 +58,16 @@ namespace letiahomes.Application.Features.Booking.Commands.RejectBooking
             }
 
             //Send rejection email to Tenant with landlord reasons for rejecting.
-            // await _mediator.Publish(new BookingRejectedNotification(booking.Id), cancellationToken);
+            var link = "https://INIHomes.com";
+            _notificationService.EnqueueBookingRejectedEmail(new BookingRejectedPayload(
+                  tenant.AppUser.Email,
+                tenant.AppUser.FirstName,
+                  property.Title,
+                   booking.CheckIn,
+                booking.CheckOut,
+                booking.RejectionReason,
+                link
+                ));
             return ApiResult<string>.Success("Booking Rejected. Tenant has been notified .");
         }
     }

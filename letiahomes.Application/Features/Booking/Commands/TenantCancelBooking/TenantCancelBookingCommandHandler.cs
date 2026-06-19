@@ -1,4 +1,5 @@
-﻿using letiahomes.Application.Abstractions.IRepository;
+﻿using letiahomes.Application.Abstractions.Externals;
+using letiahomes.Application.Abstractions.IRepository;
 using letiahomes.Application.Common;
 using letiahomes.Domain.Enums;
 using MediatR;
@@ -15,11 +16,14 @@ namespace letiahomes.Application.Features.Booking.Commands.CancelBooking
     {
         private readonly IRepositoryManager _repositoryManager;
         private readonly ILogger<TenantCancelBookingCommandHandler> _logger;
+        private readonly INotificationService _notificationService;
 
-        public TenantCancelBookingCommandHandler(IRepositoryManager repositoryManager,ILogger<TenantCancelBookingCommandHandler> logger)
+        public TenantCancelBookingCommandHandler(IRepositoryManager repositoryManager,ILogger<TenantCancelBookingCommandHandler> logger,
+                                                 INotificationService notificationService)
         {
             _repositoryManager = repositoryManager;
             _logger = logger;
+            _notificationService = notificationService;
         }
         public async Task<ApiResult<string>> Handle(TenantCancelBookingCommand request, CancellationToken cancellationToken)
         {
@@ -30,6 +34,9 @@ namespace letiahomes.Application.Features.Booking.Commands.CancelBooking
                 return ApiResult<string>.Failure(new CustomError("400", $"Booking cannot be cancelled. Current status: {booking.Status}"));
             if (DateTime.UtcNow.Date > booking.CheckIn.Date)
                 return ApiResult<string>.Failure(new CustomError("400", "Booking cannot be cancelled after the check-in date has passed"));
+            var property = await _repositoryManager.Properties.GetByIdAsync(booking.PropertyId);
+            if (property is null)
+                return ApiResult<string>.Failure(new CustomError("404", "Property not found"));
             var tenant = await _repositoryManager.Tenants.GetTenant(request.UserId);
             if (tenant is null)
                 return ApiResult<string>.Failure(new CustomError("404", "Tenant not found"));
@@ -72,6 +79,17 @@ namespace letiahomes.Application.Features.Booking.Commands.CancelBooking
             }
 
             //Notifies landlord of TenantCancellation through email
+            _notificationService.EnqueueBookingCancelledEmail(new BookingCancelledPayload(
+                tenant.AppUser.Email,
+                tenant.AppUser.FirstName,
+                property.Title,
+                booking.CheckIn,
+                booking.CheckOut,
+                "Landlord",
+                booking.CancellationReason,
+                refundAmountKobo,
+                false));
+
 
 
 

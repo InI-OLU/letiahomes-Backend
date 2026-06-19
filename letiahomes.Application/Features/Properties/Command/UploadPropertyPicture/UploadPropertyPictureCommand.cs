@@ -1,4 +1,5 @@
 ﻿using letiahomes.Application.Common;
+using letiahomes.Application.DTOs.ImageUpload;
 using letiahomes.Application.DTOs.Property;
 using MediatR;
 using System;
@@ -9,6 +10,6 @@ using System.Threading.Tasks;
 
 namespace letiahomes.Application.Features.Properties.Command.UploadPropertyPicture
 {
-    public sealed record UploadPropertyPictureCommand(UploadMultiplePropertyPicture request,Guid PropertyId):IRequest<ApiResult<string>>;
+    public sealed record UploadPropertyPictureCommand(UploadMultiplePropertyPicture request,Guid PropertyId):IRequest<ApiResult<UploadPropertyPictureResponse>>;
     
 }

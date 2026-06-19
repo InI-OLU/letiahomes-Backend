@@ -2,5 +2,4 @@
       string Recipient,
       string TenantFirstName,
       string PropertyTitle,
-      DateTime CheckOut,
-      string ReviewLink);
+      DateTime CheckOut);

@@ -1,4 +1,5 @@
-﻿using letiahomes.Application.Abstractions.IRepository;
+﻿using letiahomes.Application.Abstractions.Externals;
+using letiahomes.Application.Abstractions.IRepository;
 using letiahomes.Application.Abstractions.Jobs;
 using letiahomes.Domain.Entities;
 using letiahomes.Domain.Enums;
@@ -16,46 +17,87 @@ namespace letiahomes.Infrastructure.BookingBackgroundService
     {
         private readonly IRepositoryManager _repositoryManager;
         private readonly ILogger<CheckoutJob> _logger;
+        private readonly INotificationService _notificationService;
 
-        public CheckoutJob(IRepositoryManager repositoryManager,ILogger<CheckoutJob> logger)
+        public CheckoutJob(IRepositoryManager repositoryManager,ILogger<CheckoutJob> logger,
+                           INotificationService notificationService)
         {
             _repositoryManager = repositoryManager;
             _logger = logger;
+            _notificationService = notificationService;
         }
 
         public async Task MarkAsCheckOutJob()
         {
             var now = DateTime.UtcNow;
-            var booking = await _repositoryManager.BookingRepository.Get(x => x.Status == BookingStatus.Confirmed && x.CheckOut <= now,true)
-                                                                    .Include(x => x.Property)
-                                                                    .ToListAsync();
-            if(booking.Count == 0)
+
+            var expiredBookings = await _repositoryManager.BookingRepository
+                .Get(x => x.Status == BookingStatus.Confirmed && x.CheckOut <= now, trackChanges: true)
+                .Include(x => x.Property).ThenInclude(p => p.Landlord).ThenInclude(l => l.AppUser)
+                .Include(x => x.Tenant).ThenInclude(t => t.AppUser)
+                .ToListAsync();
+
+            if (expiredBookings.Count == 0)
             {
-                _logger.LogInformation("No Booking past expiry found to checkout");
+                _logger.LogInformation("CheckoutJob: no expired confirmed bookings found to checkout.");
                 return;
             }
+
             _logger.LogInformation(
-              "CheckOutJob: found {Count} expired confirmed bookings to checkout.",
-              booking.Count);
-            foreach (var x in booking)
+                "CheckoutJob: found {Count} expired confirmed bookings to checkout.",
+                expiredBookings.Count);
+
+            var contexts = new List<BookingNotificationContext>();
+
+            foreach (var booking in expiredBookings)
             {
-                x.Status = BookingStatus.Completed;
+                booking.Status = BookingStatus.Completed;
+
                 var payout = new Payout
                 {
-                    LandlordProfileId = x.Property.LandlordProfileId,
-                    BookingId = x.Id,
-                    AmountKobo = x.SubtotalKobo,
-                    PlatformFeeKobo = x.PlatformFeeKobo,
+                    LandlordProfileId = booking.Property.LandlordProfileId,
+                    BookingId = booking.Id,
+                    AmountKobo = booking.SubtotalKobo,
+                    PlatformFeeKobo = booking.PlatformFeeKobo,
                     Status = PayoutStatus.Pending
                 };
+
                 await _repositoryManager.PayoutRepository.AddAsync(payout);
 
-                // TODO: notify tenant — "Your stay has ended. We hope you enjoyed it!"
-                // e.g. await _mediator.Publish(new BookingCompletedNotification(booking.Id), ct);
-
-                // TODO: notify landlord — "Checkout complete. Payout of {AmountKobo} is being processed."
-                // e.g. await _mediator.Publish(new PayoutInitiatedNotification(payout), ct);
+                contexts.Add(new BookingNotificationContext(
+                    booking.Id,
+                    booking.Tenant.AppUser.Email,
+                    booking.Tenant.AppUser.FirstName,
+                    booking.Property.Landlord.AppUser.Email,
+                    booking.Property.Landlord.AppUser.FirstName,
+                    booking.Property.Title,
+                    booking.CheckIn,
+                    booking.CheckOut,
+                    CancellationReason: null));
             }
+
+            await _repositoryManager.SaveChangesAsync();
+
+            foreach (var ctx in contexts)
+            {
+                _notificationService.EnqueueBookingCompletedTenantEmail(new BookingCompletedTenantPayload(
+                    ctx.TenantEmail,
+                    ctx.TenantFirstName,
+                    ctx.PropertyTitle,
+                    ctx.CheckOut));
+
+                _notificationService.EnqueueBookingCompletedLandlordEmail(new BookingCompletedLandlordPayload(
+                    ctx.LandlordEmail,
+                    ctx.LandlordFirstName,
+                    ctx.PropertyTitle,
+                    ctx.CheckOut,
+                    PayoutAmountKobo:0));
+            }
+
+            _logger.LogInformation(
+                "CheckoutJob: checked out {Count} bookings.",
+                expiredBookings.Count);
         }
+
     }
 }

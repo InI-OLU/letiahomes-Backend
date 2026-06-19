@@ -1,4 +1,5 @@
-﻿using letiahomes.Application.Abstractions.IRepository;
+﻿using letiahomes.Application.Abstractions.Externals;
+using letiahomes.Application.Abstractions.IRepository;
 using letiahomes.Application.Common;
 using letiahomes.Domain.Enums;
 using MediatR;
@@ -13,10 +14,12 @@ namespace letiahomes.Application.Features.Booking.Commands.ConfirmBooking
     public class ConfirmBookingCommandHandler : IRequestHandler<ConfirmBookingCommand, ApiResult<string>>
     {
         private readonly IRepositoryManager _repositoryManager;
+        private readonly INotificationService _notificationService;
 
-        public ConfirmBookingCommandHandler(IRepositoryManager repositoryManager)
+        public ConfirmBookingCommandHandler(IRepositoryManager repositoryManager,INotificationService notificationService)
         {
             _repositoryManager = repositoryManager;
+            _notificationService = notificationService;
         }
         public async Task<ApiResult<string>> Handle(ConfirmBookingCommand request, CancellationToken cancellationToken)
         {
@@ -33,6 +36,10 @@ namespace letiahomes.Application.Features.Booking.Commands.ConfirmBooking
             {
                 return ApiResult<string>.Failure(new CustomError("404", "User not found or IsNotVerified"));
             }
+            var tenant = await _repositoryManager.Tenants.GetByIdAsync(booking.TenantProfileId);
+            if (tenant is null || tenant.AppUser.IsVerified == false)
+                return ApiResult<string>.Failure(new CustomError("404", "User not found or IsNotVerified"));
+
             var property = await _repositoryManager.Properties.GetByIdAsync(booking.PropertyId);
             if (property is null)
                 return ApiResult<string>.Failure(new CustomError("404", "Property not found"));
@@ -47,8 +54,28 @@ namespace letiahomes.Application.Features.Booking.Commands.ConfirmBooking
             _repositoryManager.BookingRepository.Update(booking);
             await _repositoryManager.SaveChangesAsync();
 
-            // ─── 7. NOTIFICATIONS — after save only ───────────────────────────
-            // await _mediator.Publish(new BookingConfirmedNotification(booking.Id), cancellationToken);
+            // NOTIFICATIONS — after save only 
+             _notificationService.EnqueueBookingConfirmedLandlordEmail(new BookingConfirmedLandlordPayload
+            (
+               tenant.AppUser.Email,
+                landlord.AppUser.FirstName,
+                tenant.AppUser.FirstName,
+                 property.Title,
+                 booking.CheckIn,
+                booking.CheckOut
+            ));
+            //The link below to be replaced by paystacklink
+            var link = "https://google.come";
+            _notificationService.EnqueueBookingConfirmedTenantEmail(new BookingConfirmedTenantPayload(
+                tenant.AppUser.Email,
+                tenant.AppUser.FirstName,
+                  property.Title,
+                   booking.CheckIn,
+                booking.CheckOut,
+                booking.TotalAmountKobo,
+                link,
+                booking.ExpiresAt
+                ));
             // The notification handler will:
             //   - Generate Paystack payment link
             //   - Email tenant: "Booking confirmed — complete payment within 2 hours"

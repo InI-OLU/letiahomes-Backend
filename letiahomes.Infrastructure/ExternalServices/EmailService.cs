@@ -187,12 +187,10 @@ namespace letiahomes.Infrastructure.ExternalServices
             ["TenantFirstName"] = payload.TenantFirstName,
             ["PropertyTitle"] = payload.PropertyTitle,
             ["CheckOut"] = payload.CheckOut.ToString(DateFormat),
-            ["ReviewLink"] = payload.ReviewLink
         },
         payload.Recipient,
         "Your Stay Is Complete — Leave a Review",
-        $"Hello {payload.TenantFirstName}, your stay at {payload.PropertyTitle} has ended. " +
-        $"Leave a review here: {payload.ReviewLink}"));
+        $"Hello {payload.TenantFirstName}, your stay at {payload.PropertyTitle} has ended."));
 
 
         public Task SendBookingCompletedLandlordEmailAsync(BookingCompletedLandlordPayload payload)
