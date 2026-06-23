@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "letiahomes.Infrastructure",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "letiahomes.API", "letiahomes.API\letiahomes.API.csproj", "{A308CC3F-AEBA-4733-842A-A1E0B7C37B15}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "letiahomes.Application.Tests", "tests\letiahomes.Application.Tests\letiahomes.Application.Tests.csproj", "{28041DE6-6C50-4358-A8C0-09B1B4B8E155}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,9 +73,24 @@ Global
 		{A308CC3F-AEBA-4733-842A-A1E0B7C37B15}.Release|x64.Build.0 = Release|Any CPU
 		{A308CC3F-AEBA-4733-842A-A1E0B7C37B15}.Release|x86.ActiveCfg = Release|Any CPU
 		{A308CC3F-AEBA-4733-842A-A1E0B7C37B15}.Release|x86.Build.0 = Release|Any CPU
+		{28041DE6-6C50-4358-A8C0-09B1B4B8E155}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28041DE6-6C50-4358-A8C0-09B1B4B8E155}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28041DE6-6C50-4358-A8C0-09B1B4B8E155}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{28041DE6-6C50-4358-A8C0-09B1B4B8E155}.Debug|x64.Build.0 = Debug|Any CPU
+		{28041DE6-6C50-4358-A8C0-09B1B4B8E155}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{28041DE6-6C50-4358-A8C0-09B1B4B8E155}.Debug|x86.Build.0 = Debug|Any CPU
+		{28041DE6-6C50-4358-A8C0-09B1B4B8E155}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28041DE6-6C50-4358-A8C0-09B1B4B8E155}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28041DE6-6C50-4358-A8C0-09B1B4B8E155}.Release|x64.ActiveCfg = Release|Any CPU
+		{28041DE6-6C50-4358-A8C0-09B1B4B8E155}.Release|x64.Build.0 = Release|Any CPU
+		{28041DE6-6C50-4358-A8C0-09B1B4B8E155}.Release|x86.ActiveCfg = Release|Any CPU
+		{28041DE6-6C50-4358-A8C0-09B1B4B8E155}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{28041DE6-6C50-4358-A8C0-09B1B4B8E155} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DD60B7D2-5E46-4DF3-81CC-A07B1DEF3AB7}
