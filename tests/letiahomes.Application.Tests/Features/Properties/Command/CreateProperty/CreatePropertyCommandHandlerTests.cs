@@ -3,6 +3,7 @@ using letiahomes.Application.DTOs.Property;
 using letiahomes.Application.Features.Properties.Command.CreateProperty;
 using letiahomes.Application.Tests.TestHelpers;
 using letiahomes.Domain.Entities;
+using MockQueryable;
 using MockQueryable.Moq;
 using Moq;
 using System.Linq.Expressions;
@@ -16,7 +17,7 @@ namespace letiahomes.Application.Tests.Features.Properties.Command.CreatePropert
         public async Task Handle_LandlordNotFoundOrUnverified_ReturnsFailure()
         {
             // Arrange
-            var emptyLandlords = new List<LandlordProfile>().AsQueryable().BuildMock();
+            var emptyLandlords = new List<LandlordProfile>().BuildMock();
 
             var landlordRepoMock = new Mock<ILandlordRepository>();
             landlordRepoMock
@@ -56,7 +57,8 @@ namespace letiahomes.Application.Tests.Features.Properties.Command.CreatePropert
 
             // Assert
             Assert.False(result.IsSuccess);
-            Assert.Equal("404", result.Value);
+            Assert.NotNull(result.Error);
+            Assert.Equal("404", result.Error.code);
         }
     }
 }
