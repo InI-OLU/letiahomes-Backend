@@ -1,15 +1,10 @@
 ﻿using letiahomes.Application.Abstractions.Externals;
 using letiahomes.Application.Abstractions.IRepository;
 using letiahomes.Application.Common;
-using letiahomes.Application.Features.Booking.Commands.CancelBooking;
 using letiahomes.Domain.Enums;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace letiahomes.Application.Features.Booking.Commands.LandlordCancelBooking
 {
