@@ -128,7 +128,7 @@ Unit tests cover `CreateBookingCommandHandler` across every validation branch, a
 
 ## Project Status
 
-This project is under active development. Core booking, property, and auth flows are implemented and unit tested. Integration testing (real-database concurrency tests) and a payment reconciliation job are the current open threads — see [TRADEOFFS.md](./TRADEOFFS.md) for details.
+This project was built as a focused learning exercise in Clean Architecture, CQRS, and concurrency-safe backend design. Core booking, property, and auth flows are implemented and unit tested. Integration testing and the payment system are documented as designed-but-not-built in since the project had already served its learning purpose.
 
 ## License
 
