@@ -52,7 +52,7 @@ namespace letiahomes.Application.Features.Booking.Commands.CreateBooking
             if (pendingCount >= 3)
                 return ApiResult<string>.Failure(new CustomError("400", "You cannot have more than 3 pending bookings at a time"));
             var isDateAvailable = await _repositoryManager.BookingRepository.HasConflictBookingAsync(request.Request.PropertyId, request.Request.CheckIn, request.Request.CheckOut);
-                if (!isDateAvailable)
+                if (isDateAvailable)
                 return ApiResult<string>.Failure(new CustomError("400", "These dates have been booked"));
 
             const decimal platformFeePercent = 0.10m; 
@@ -81,7 +81,7 @@ namespace letiahomes.Application.Features.Booking.Commands.CreateBooking
             try
             {
                 var isDateAvailableCheck = await _repositoryManager.BookingRepository.HasConflictBookingAsync(request.Request.PropertyId, request.Request.CheckIn, request.Request.CheckOut);
-                if (!isDateAvailableCheck)
+                if (isDateAvailableCheck)
                     return ApiResult<string>.Failure(new CustomError("400", "These dates have been booked"));
 
                 await _repositoryManager.BookingRepository.AddAsync(booking);
@@ -95,7 +95,7 @@ namespace letiahomes.Application.Features.Booking.Commands.CreateBooking
                         Date = date
                     });
                 }
-
+                await _repositoryManager.SaveChangesAsync();
                 await _repositoryManager.CommitTransactionAsync(transaction);
             }
             catch
